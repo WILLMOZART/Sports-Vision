@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Data - SportVision Analytics{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Upload Data</h1>
+        <p class="subtitle">Import player and match data via CSV files</p>
+    </div>
+
+    <!-- Upload Section -->
+    <div class="upload-grid">
+        <!-- Upload Form -->
+        <div class="upload-card">
+            <div class="card-header">
+                <h2>&#128228; Upload CSV File</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('upload') }}" enctype="multipart/form-data" class="upload-form">
+                    <div class="form-group">
+                        <label for="upload_type">Data Type</label>
+                        <select name="upload_type" id="upload_type" class="form-control">
+                            <option value="players">Players</option>
+                            <option value="matches">Matches</option>
+                        </select>
+                        <small class="form-help">Select the type of data you're uploading</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="file">CSV File</label>
+                        <div class="file-input-wrapper">
+                            <input type="file" name="file" id="file" accept=".csv" required>
+                            <label for="file" class="file-input-label">
+                                <span class="file-icon">&#128193;</span>
+                                <span class="file-text">Choose a file...</span>
+                            </label>
+                        </div>
+                        <small class="form-help">Only .csv files are accepted (max 16MB)</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block">
+                        <span>&#128228;</span> Upload and Process
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- CSV Format Guide -->
+        <div class="guide-card">
+            <div class="card-header">
+                <h2>&#128196; CSV Format Guide</h2>
+            </div>
+            <div class="card-body">
+                <div class="guide-section">
+                    <h3>Players CSV Format</h3>
+                    <p>Required columns: <code>name</code>, <code>position</code></p>
+                    <p>Optional columns: <code>jersey_number</code>, <code>age</code>, <code>nationality</code></p>
+                    
+                    <div class="csv-example">
+                        <table class="example-table">
+                            <thead>
+                                <tr>
+                                    <th>name</th>
+                                    <th>position</th>
+                                    <th>jersey_number</th>
+                                    <th>age</th>
+                                    <th>nationality</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>John Smith</td>
+                                    <td>Forward</td>
+                                    <td>9</td>
+                                    <td>25</td>
+                                    <td>England</td>
+                                </tr>
+                                <tr>
+                                    <td>Mike Johnson</td>
+                                    <td>Midfielder</td>
+                                    <td>8</td>
+                                    <td>28</td>
+                                    <td>Spain</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="guide-section">
+                    <h3>Matches CSV Format</h3>
+                    <p>Required columns: <code>match_date</code>, <code>opponent</code>, <code>venue</code></p>
+                    <p>Optional columns: <code>team_goals</code>, <code>opponent_goals</code>, <code>possession</code>, <code>shots</code>, <code>shots_on_target</code>, <code>corners</code>, <code>fouls</code></p>
+                    
+                    <div class="csv-example">
+                        <table class="example-table">
+                            <thead>
+                                <tr>
+                                    <th>match_date</th>
+                                    <th>opponent</th>
+                                    <th>venue</th>
+                                    <th>team_goals</th>
+                                    <th>opponent_goals</th>
+                                    <th>possession</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>2024-01-15</td>
+                                    <td>Team A</td>
+                                    <td>Home</td>
+                                    <td>3</td>
+                                    <td>1</td>
+                                    <td>58.5</td>
+                                </tr>
+                                <tr>
+                                    <td>2024-01-22</td>
+                                    <td>Team B</td>
+                                    <td>Away</td>
+                                    <td>2</td>
+                                    <td>2</td>
+                                    <td>45.0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="download-section">
+                    <h3>Sample Files</h3>
+                    <p>Download sample CSV files to get started:</p>
+                    <div class="download-buttons">
+                        <a href="{{ url_for('static', filename='sample_players.csv') }}" class="btn btn-secondary btn-sm" download>
+                            &#128229; Sample Players
+                        </a>
+                        <a href="{{ url_for('static', filename='sample_matches.csv') }}" class="btn btn-secondary btn-sm" download>
+                            &#128229; Sample Matches
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tips Section -->
+    <div class="tips-card">
+        <div class="card-header">
+            <h2>&#128161; Tips for Successful Upload</h2>
+        </div>
+        <div class="card-body">
+            <ul class="tips-list">
+                <li><strong>Date Format:</strong> Use YYYY-MM-DD format for dates (e.g., 2024-01-15)</li>
+                <li><strong>Venue Values:</strong> Use "Home" or "Away" for the venue column</li>
+                <li><strong>Position Values:</strong> Use standard positions like "Forward", "Midfielder", "Defender", "Goalkeeper"</li>
+                <li><strong>Encoding:</strong> Save your CSV file with UTF-8 encoding for best compatibility</li>
+                <li><strong>Headers:</strong> Make sure the first row contains column headers exactly as shown above</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// File input display
+const fileInput = document.getElementById('file');
+const fileLabel = document.querySelector('.file-text');
+
+fileInput.addEventListener('change', function() {
+    if (this.files && this.files.length > 0) {
+        fileLabel.textContent = this.files[0].name;
+    } else {
+        fileLabel.textContent = 'Choose a file...';
+    }
+});
+</script>
+{% endblock %}

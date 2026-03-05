@@ -1,0 +1,186 @@
+{% extends "base.html" %}
+
+{% block title %}Match Prediction - SportVision Analytics{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Match Outcome Prediction</h1>
+        <p class="subtitle">Use machine learning to predict match results based on key metrics</p>
+    </div>
+
+    <div class="prediction-grid">
+        <!-- Prediction Form -->
+        <div class="prediction-form-card">
+            <div class="card-header">
+                <h2>&#128295; Match Parameters</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('predict') }}" class="prediction-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="possession">Expected Possession (%)</label>
+                            <input type="number" name="possession" id="possession" 
+                                   min="0" max="100" value="50" step="0.1" class="form-control" required>
+                            <small class="form-help">Your team's expected ball possession percentage</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="shots">Expected Shots</label>
+                            <input type="number" name="shots" id="shots" 
+                                   min="0" max="50" value="10" class="form-control" required>
+                            <small class="form-help">Expected number of shots during the match</small>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="shots_on_target">Shots on Target</label>
+                            <input type="number" name="shots_on_target" id="shots_on_target" 
+                                   min="0" max="30" value="5" class="form-control" required>
+                            <small class="form-help">Expected shots that hit the target</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="corners">Expected Corners</label>
+                            <input type="number" name="corners" id="corners" 
+                                   min="0" max="20" value="5" class="form-control" required>
+                            <small class="form-help">Expected number of corner kicks</small>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="venue">Venue</label>
+                        <select name="venue" id="venue" class="form-control">
+                            <option value="Home">Home</option>
+                            <option value="Away">Away</option>
+                        </select>
+                        <small class="form-help">Playing at home or away</small>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary btn-block btn-lg">
+                        <span>&#128302;</span> Predict Outcome
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Prediction Result -->
+        {% if prediction %}
+        <div class="prediction-result-card">
+            <div class="card-header">
+                <h2>&#127919; Prediction Result</h2>
+            </div>
+            <div class="card-body">
+                <div class="prediction-main">
+                    <div class="prediction-outcome outcome-{{ prediction.prediction|lower }}">
+                        <span class="outcome-icon">
+                            {% if prediction.prediction == 'Win' %}&#127942;{% endif %}
+                            {% if prediction.prediction == 'Draw' %}&#9861;{% endif %}
+                            {% if prediction.prediction == 'Loss' %}&#10060;{% endif %}
+                        </span>
+                        <span class="outcome-text">{{ prediction.prediction }}</span>
+                    </div>
+                    <div class="confidence-badge">
+                        Confidence: {{ prediction.confidence }}%
+                    </div>
+                </div>
+
+                <div class="probability-bars">
+                    <h4>Probability Breakdown</h4>
+                    
+                    <div class="probability-item">
+                        <span class="prob-label">Win</span>
+                        <div class="prob-bar-container">
+                            <div class="prob-bar prob-win" style="width: {{ prediction.probabilities.Win }}%">
+                                {{ prediction.probabilities.Win }}%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="probability-item">
+                        <span class="prob-label">Draw</span>
+                        <div class="prob-bar-container">
+                            <div class="prob-bar prob-draw" style="width: {{ prediction.probabilities.Draw }}%">
+                                {{ prediction.probabilities.Draw }}%
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="probability-item">
+                        <span class="prob-label">Loss</span>
+                        <div class="prob-bar-container">
+                            <div class="prob-bar prob-loss" style="width: {{ prediction.probabilities.Loss }}%">
+                                {{ prediction.probabilities.Loss }}%
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="prediction-info-card">
+            <div class="card-header">
+                <h2>&#128161; How It Works</h2>
+            </div>
+            <div class="card-body">
+                <div class="ml-explanation">
+                    <div class="explanation-section">
+                        <h4>Machine Learning Model</h4>
+                        <p>Our prediction system uses a <strong>Logistic Regression</strong> model trained on your team's historical match data.</p>
+                    </div>
+
+                    <div class="explanation-section">
+                        <h4>Features Used</h4>
+                        <ul>
+                            <li><strong>Possession:</strong> Ball possession percentage</li>
+                            <li><strong>Shots:</strong> Total shots attempted</li>
+                            <li><strong>Shots on Target:</strong> Shots that hit the goal</li>
+                            <li><strong>Corners:</strong> Number of corner kicks</li>
+                            <li><strong>Venue:</strong> Home or away advantage</li>
+                        </ul>
+                    </div>
+
+                    <div class="explanation-section">
+                        <h4>How to Improve Accuracy</h4>
+                        <p>The model becomes more accurate as you add more match data. We recommend having at least 10 matches for reliable predictions.</p>
+                    </div>
+
+                    <div class="explanation-note">
+                        <p><strong>Note:</strong> Predictions are estimates based on historical patterns and should be used as a guide, not a guarantee.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Model Status -->
+    <div class="model-status-card">
+        <div class="card-header">
+            <h2>&#9881; Model Status</h2>
+        </div>
+        <div class="card-body">
+            <div class="status-grid">
+                <div class="status-item">
+                    <span class="status-label">Algorithm</span>
+                    <span class="status-value">Logistic Regression</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Features</span>
+                    <span class="status-value">5 (Possession, Shots, Corners, Venue)</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Output Classes</span>
+                    <span class="status-value">3 (Win, Draw, Loss)</span>
+                </div>
+                <div class="status-item">
+                    <span class="status-label">Training</span>
+                    <span class="status-value">Automatic on data upload</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

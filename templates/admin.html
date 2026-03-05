@@ -1,0 +1,473 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Panel - SportVision Analytics{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Admin Panel</h1>
+        <p class="subtitle">Manage players, matches, and system settings</p>
+    </div>
+
+    <!-- Admin Tabs -->
+    <div class="admin-tabs">
+        <button class="tab-btn active" onclick="showTab('players')">Players</button>
+        <button class="tab-btn" onclick="showTab('matches')">Matches</button>
+        <button class="tab-btn" onclick="showTab('ml')">ML Model</button>
+    </div>
+
+    <!-- Players Tab -->
+    <div id="players-tab" class="tab-content active">
+        <div class="admin-section">
+            <div class="section-header">
+                <h2>&#128100; Manage Players</h2>
+                <button class="btn btn-primary" onclick="openModal('addPlayerModal')">
+                    <span>&#10133;</span> Add Player
+                </button>
+            </div>
+
+            {% if players %}
+            <div class="admin-table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Position</th>
+                            <th>Jersey</th>
+                            <th>Age</th>
+                            <th>Nationality</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in players %}
+                        <tr>
+                            <td>{{ player.id }}</td>
+                            <td><strong>{{ player.name }}</strong></td>
+                            <td><span class="badge badge-position">{{ player.position }}</span></td>
+                            <td>{{ player.jersey_number or '-' }}</td>
+                            <td>{{ player.age or '-' }}</td>
+                            <td>{{ player.nationality or '-' }}</td>
+                            <td class="actions">
+                                <button class="btn-icon btn-edit" onclick="editPlayer({{ player.id }}, '{{ player.name }}', '{{ player.position }}', '{{ player.jersey_number or '' }}', '{{ player.age or '' }}', '{{ player.nationality or '' }}')" title="Edit">
+                                    &#9998;
+                                </button>
+                                <button class="btn-icon btn-stats" onclick="editStats({{ player.id }}, '{{ player.name }}')" title="Edit Stats">
+                                    &#128200;
+                                </button>
+                                <form method="POST" action="{{ url_for('delete_player', player_id=player.id) }}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this player?')">
+                                    <button type="submit" class="btn-icon btn-delete" title="Delete">
+                                        &#10005;
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>No players found. Add your first player to get started.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Matches Tab -->
+    <div id="matches-tab" class="tab-content">
+        <div class="admin-section">
+            <div class="section-header">
+                <h2>&#9917; Manage Matches</h2>
+                <button class="btn btn-primary" onclick="openModal('addMatchModal')">
+                    <span>&#10133;</span> Add Match
+                </button>
+            </div>
+
+            {% if matches %}
+            <div class="admin-table-container">
+                <table class="admin-table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Opponent</th>
+                            <th>Venue</th>
+                            <th>Score</th>
+                            <th>Result</th>
+                            <th>Possession</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for match in matches %}
+                        <tr>
+                            <td>{{ match.match_date }}</td>
+                            <td><strong>{{ match.opponent }}</strong></td>
+                            <td>{{ match.venue }}</td>
+                            <td>{{ match.team_goals }} - {{ match.opponent_goals }}</td>
+                            <td>
+                                <span class="result-badge result-{{ match.result|lower }}">{{ match.result }}</span>
+                            </td>
+                            <td>{{ match.possession }}%</td>
+                            <td class="actions">
+                                <form method="POST" action="{{ url_for('delete_match', match_id=match.id) }}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this match?')">
+                                    <button type="submit" class="btn-icon btn-delete" title="Delete">
+                                        &#10005;
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <p>No matches found. Add your first match to get started.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- ML Model Tab -->
+    <div id="ml-tab" class="tab-content">
+        <div class="admin-section">
+            <div class="section-header">
+                <h2>&#129302; Machine Learning Model</h2>
+            </div>
+
+            <div class="ml-info-card">
+                <h3>Model Information</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">Algorithm</span>
+                        <span class="info-value">Logistic Regression</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Purpose</span>
+                        <span class="info-value">Match Outcome Prediction</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Features</span>
+                        <span class="info-value">5 (Possession, Shots, Shots on Target, Corners, Venue)</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">Output</span>
+                        <span class="info-value">3 Classes (Win, Draw, Loss)</span>
+                    </div>
+                </div>
+
+                <div class="training-section">
+                    <h4>Model Training</h4>
+                    <p>The model is trained automatically when you upload match data. You can also manually retrain the model using the button below.</p>
+                    <p><strong>Minimum required matches:</strong> 10</p>
+                    
+                    <form method="POST" action="{{ url_for('admin_train_model') }}">
+                        <button type="submit" class="btn btn-primary">
+                            <span>&#128295;</span> Retrain Model
+                        </button>
+                    </form>
+                </div>
+
+                <div class="how-it-works">
+                    <h4>How It Works</h4>
+                    <ol>
+                        <li><strong>Data Collection:</strong> Match data is collected from your database</li>
+                        <li><strong>Feature Scaling:</strong> Features are standardized for optimal performance</li>
+                        <li><strong>Model Training:</strong> Logistic regression learns patterns from historical data</li>
+                        <li><strong>Prediction:</strong> Model predicts probabilities for each outcome class</li>
+                    </ol>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Player Modal -->
+<div id="addPlayerModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add New Player</h3>
+            <button class="modal-close" onclick="closeModal('addPlayerModal')">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('add_player') }}">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="name">Player Name *</label>
+                    <input type="text" name="name" id="name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="position">Position *</label>
+                    <select name="position" id="position" class="form-control" required>
+                        <option value="Goalkeeper">Goalkeeper</option>
+                        <option value="Defender">Defender</option>
+                        <option value="Midfielder">Midfielder</option>
+                        <option value="Forward">Forward</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="jersey_number">Jersey Number</label>
+                        <input type="number" name="jersey_number" id="jersey_number" class="form-control" min="1" max="99">
+                    </div>
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" name="age" id="age" class="form-control" min="15" max="50">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="nationality">Nationality</label>
+                    <input type="text" name="nationality" id="nationality" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('addPlayerModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add Player</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Player Modal -->
+<div id="editPlayerModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Edit Player</h3>
+            <button class="modal-close" onclick="closeModal('editPlayerModal')">&times;</button>
+        </div>
+        <form method="POST" id="editPlayerForm" action="">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="edit_name">Player Name</label>
+                    <input type="text" name="name" id="edit_name" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label for="edit_position">Position</label>
+                    <select name="position" id="edit_position" class="form-control" required>
+                        <option value="Goalkeeper">Goalkeeper</option>
+                        <option value="Defender">Defender</option>
+                        <option value="Midfielder">Midfielder</option>
+                        <option value="Forward">Forward</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit_jersey_number">Jersey Number</label>
+                        <input type="number" name="jersey_number" id="edit_jersey_number" class="form-control" min="1" max="99">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit_age">Age</label>
+                        <input type="number" name="age" id="edit_age" class="form-control" min="15" max="50">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edit_nationality">Nationality</label>
+                    <input type="text" name="nationality" id="edit_nationality" class="form-control">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('editPlayerModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Stats Modal -->
+<div id="editStatsModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Edit Player Statistics - <span id="statsPlayerName"></span></h3>
+            <button class="modal-close" onclick="closeModal('editStatsModal')">&times;</button>
+        </div>
+        <form method="POST" id="editStatsForm" action="">
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="stats_season">Season</label>
+                    <input type="text" name="season" id="stats_season" class="form-control" value="2024" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="stats_matches">Matches Played</label>
+                        <input type="number" name="matches_played" id="stats_matches" class="form-control" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="stats_goals">Goals</label>
+                        <input type="number" name="goals" id="stats_goals" class="form-control" min="0" value="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="stats_assists">Assists</label>
+                        <input type="number" name="assists" id="stats_assists" class="form-control" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="stats_rating">Rating (0-10)</label>
+                        <input type="number" name="rating" id="stats_rating" class="form-control" min="0" max="10" step="0.1" value="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="stats_passes_attempted">Passes Attempted</label>
+                        <input type="number" name="passes_attempted" id="stats_passes_attempted" class="form-control" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="stats_passes_completed">Passes Completed</label>
+                        <input type="number" name="passes_completed" id="stats_passes_completed" class="form-control" min="0" value="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="stats_minutes">Minutes Played</label>
+                        <input type="number" name="minutes_played" id="stats_minutes" class="form-control" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="stats_yellow">Yellow Cards</label>
+                        <input type="number" name="yellow_cards" id="stats_yellow" class="form-control" min="0" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="stats_red">Red Cards</label>
+                    <input type="number" name="red_cards" id="stats_red" class="form-control" min="0" value="0">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('editStatsModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Save Statistics</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Match Modal -->
+<div id="addMatchModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Add New Match</h3>
+            <button class="modal-close" onclick="closeModal('addMatchModal')">&times;</button>
+        </div>
+        <form method="POST" action="{{ url_for('add_match') }}">
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="match_date">Match Date *</label>
+                        <input type="date" name="match_date" id="match_date" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="venue">Venue *</label>
+                        <select name="venue" id="venue" class="form-control" required>
+                            <option value="Home">Home</option>
+                            <option value="Away">Away</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="opponent">Opponent *</label>
+                    <input type="text" name="opponent" id="opponent" class="form-control" required>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="team_goals">Team Goals</label>
+                        <input type="number" name="team_goals" id="team_goals" class="form-control" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="opponent_goals">Opponent Goals</label>
+                        <input type="number" name="opponent_goals" id="opponent_goals" class="form-control" min="0" value="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="possession">Possession (%)</label>
+                        <input type="number" name="possession" id="possession" class="form-control" min="0" max="100" step="0.1" value="50">
+                    </div>
+                    <div class="form-group">
+                        <label for="shots">Shots</label>
+                        <input type="number" name="shots" id="shots" class="form-control" min="0" value="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="shots_on_target">Shots on Target</label>
+                        <input type="number" name="shots_on_target" id="shots_on_target" class="form-control" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="corners">Corners</label>
+                        <input type="number" name="corners" id="corners" class="form-control" min="0" value="0">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="fouls">Fouls</label>
+                    <input type="number" name="fouls" id="fouls" class="form-control" min="0" value="0">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal('addMatchModal')">Cancel</button>
+                <button type="submit" class="btn btn-primary">Add Match</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Tab functionality
+function showTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName + '-tab').classList.add('active');
+    event.target.classList.add('active');
+}
+
+// Modal functionality
+function openModal(modalId) {
+    document.getElementById(modalId).style.display = 'block';
+}
+
+function closeModal(modalId) {
+    document.getElementById(modalId).style.display = 'none';
+}
+
+// Close modal when clicking outside
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.style.display = 'none';
+    }
+}
+
+// Edit player functionality
+function editPlayer(id, name, position, jersey, age, nationality) {
+    document.getElementById('editPlayerForm').action = '/admin/edit_player/' + id;
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_position').value = position;
+    document.getElementById('edit_jersey_number').value = jersey;
+    document.getElementById('edit_age').value = age;
+    document.getElementById('edit_nationality').value = nationality;
+    openModal('editPlayerModal');
+}
+
+// Edit stats functionality
+function editStats(id, name) {
+    document.getElementById('editStatsForm').action = '/admin/edit_stats/' + id;
+    document.getElementById('statsPlayerName').textContent = name;
+    openModal('editStatsModal');
+}
+
+// Set today's date for match date input
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('match_date');
+    if (dateInput) {
+        dateInput.valueAsDate = new Date();
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,550 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - SportVision Analytics{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Main content area with background image */
+    .main-content {
+        background-image: url("{{ url_for('static', filename='images/stadium.jpg') }}");
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        background-repeat: no-repeat;
+        position: relative;
+        min-height: 100vh;
+    }
+    
+    /* Dark overlay to make content readable */
+    .main-content::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.65); /* Slightly darker for better contrast */
+        z-index: 0;
+        pointer-events: none;
+    }
+    
+    /* Ensure all content appears above the overlay */
+    .main-content > * {
+        position: relative;
+        z-index: 1;
+    }
+    
+    /* STAT CARDS - Rich deep navy (like premium stadium seats) */
+    .stat-card {
+        background: rgba(10, 25, 47, 0.92) !important; /* Deep navy blue */
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 215, 0, 0.2); /* Subtle gold accent */
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* DASHBOARD CARDS - Charcoal with purple undertones (like stadium shadows) */
+    .dashboard-card {
+        background: rgba(28, 35, 45, 0.92) !important; /* Sophisticated charcoal */
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 215, 0, 0.15); /* Subtle gold accent */
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* Page Header styling - Premier League inspired */
+    .page-header h1 {
+        color: #ffffff;
+        text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3), 0 0 10px rgba(255, 215, 0, 0.3);
+        font-weight: 700;
+        letter-spacing: 1px;
+    }
+    
+    .page-header .subtitle {
+        color: rgba(255, 255, 255, 0.9);
+        font-weight: 300;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Quick Actions container - TRANSPARENT */
+    .quick-actions {
+        background: transparent !important;
+        backdrop-filter: none;
+        border: none;
+        box-shadow: none;
+        padding: 20px 0;
+    }
+    
+    /* Quick Actions header */
+    .quick-actions h3 {
+        color: white;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+        margin-bottom: 15px;
+        font-weight: 600;
+        letter-spacing: 1px;
+        border-left: 4px solid #FFD700; /* Gold accent line */
+        padding-left: 15px;
+    }
+    
+    /* Action buttons styling - Stadium gold accent */
+    .action-btn {
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(10px);
+        border: 2px solid #FFD700; /* Gold border */
+        transition: all 0.3s ease;
+        color: white !important;
+        padding: 12px 24px;
+        border-radius: 30px; /* Pill shape like premium badges */
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+    }
+    
+    .action-btn span:last-child {
+        color: white !important;
+        font-weight: 600;
+    }
+    
+    .action-btn:hover {
+        background: #FFD700; /* Gold on hover */
+        color: #000 !important;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(255, 215, 0, 0.3);
+    }
+    
+    .action-btn:hover span:last-child {
+        color: #000 !important;
+    }
+    
+    /* Hover effects for cards */
+    .stat-card:hover,
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        transition: transform 0.3s ease;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        border-color: rgba(255, 215, 0, 0.4);
+    }
+    
+    /* Card headers with gold accent */
+    .card-header {
+        border-bottom: 2px solid rgba(255, 215, 0, 0.3) !important;
+        padding-bottom: 12px;
+        margin-bottom: 15px;
+    }
+    
+    .card-header h2 {
+        color: white !important;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+    
+    .card-header .btn-sm {
+        background: rgba(255, 215, 0, 0.15);
+        color: #FFD700;
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        border-radius: 20px;
+        padding: 5px 15px;
+        font-weight: 500;
+    }
+    
+    .card-header .btn-sm:hover {
+        background: #FFD700;
+        color: #000;
+    }
+    
+    /* Card content text colors */
+    .stat-card h3,
+    .dashboard-card h3,
+    .dashboard-card h4 {
+        color: white !important;
+        font-weight: 600;
+    }
+    
+    .stat-card p {
+        color: rgba(255, 255, 255, 0.7) !important;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
+    
+    /* Table styling inside cards */
+    .dashboard-card .data-table th {
+        color: #FFD700 !important; /* Gold headers */
+        background: rgba(0, 0, 0, 0.3);
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .dashboard-card .data-table td {
+        color: rgba(255, 255, 255, 0.9) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    .dashboard-card .data-table tr:hover td {
+        background: rgba(255, 215, 0, 0.1);
+    }
+    
+    /* Match items - Stadium ticket style */
+    .dashboard-card .match-item {
+        background: rgba(0, 0, 0, 0.3);
+        border-left: 4px solid #FFD700; /* Gold accent */
+        border-radius: 0 8px 8px 0;
+        padding: 15px;
+        margin-bottom: 10px;
+        transition: all 0.3s ease;
+    }
+    
+    .dashboard-card .match-item:hover {
+        background: rgba(0, 0, 0, 0.5);
+        transform: translateX(5px);
+    }
+    
+    .match-date {
+        color: rgba(255, 215, 0, 0.8) !important; /* Gold date */
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .match-opponent {
+        color: white !important;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+    
+    .match-score {
+        color: white !important;
+        font-weight: 800;
+        font-size: 1.2rem;
+    }
+    
+    /* Performance items - Stadium suite style */
+    .dashboard-card .performance-item {
+        background: rgba(0, 0, 0, 0.25);
+        padding: 15px;
+        border-radius: 8px;
+        border: 1px solid rgba(255, 215, 0, 0.15);
+    }
+    
+    .performance-label {
+        color: rgba(255, 215, 0, 0.8) !important; /* Gold labels */
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .performance-value {
+        color: white !important;
+        font-size: 1.8rem;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+    
+    .performance-value.win {
+        color: #4CAF50 !important; /* Green for wins */
+    }
+    
+    .performance-value.draw {
+        color: #FFC107 !important; /* Amber for draws */
+    }
+    
+    .performance-value.loss {
+        color: #F44336 !important; /* Red for losses */
+    }
+    
+    /* Result badges - Stadium scoreboard style */
+    .result-badge {
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .result-badge.result-win {
+        background: linear-gradient(135deg, #2E7D32, #4CAF50);
+        color: white;
+    }
+    
+    .result-badge.result-draw {
+        background: linear-gradient(135deg, #B26A00, #FFC107);
+        color: white;
+    }
+    
+    .result-badge.result-loss {
+        background: linear-gradient(135deg, #C62828, #F44336);
+        color: white;
+    }
+    
+    /* Badge positions - Stadium jersey style */
+    .badge-position {
+        background: rgba(255, 215, 0, 0.15) !important;
+        color: #FFD700 !important;
+        border: 1px solid rgba(255, 215, 0, 0.3);
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-weight: 500;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+    }
+    
+    /* Form indicators - Stadium floodlights */
+    .form-dot {
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        box-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+    }
+    
+    .form-dot.form-win {
+        background: #4CAF50;
+        box-shadow: 0 0 15px #4CAF50;
+    }
+    
+    .form-dot.form-draw {
+        background: #FFC107;
+        box-shadow: 0 0 15px #FFC107;
+    }
+    
+    .form-dot.form-loss {
+        background: #F44336;
+        box-shadow: 0 0 15px #F44336;
+    }
+    
+    /* Empty state */
+    .dashboard-card .empty-state {
+        background: rgba(0, 0, 0, 0.3);
+        padding: 40px;
+        text-align: center;
+        border-radius: 8px;
+        border: 2px dashed rgba(255, 215, 0, 0.3);
+    }
+    
+    .dashboard-card .empty-state p {
+        color: rgba(255, 255, 255, 0.8) !important;
+        margin-bottom: 15px;
+    }
+    
+    .dashboard-card .empty-state .btn {
+        background: rgba(255, 215, 0, 0.2);
+        color: #FFD700;
+        border: 1px solid #FFD700;
+        padding: 10px 25px;
+        border-radius: 25px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .dashboard-card .empty-state .btn:hover {
+        background: #FFD700;
+        color: #000;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1>Dashboard</h1>
+        <p class="subtitle">Overview of your team's performance and statistics</p>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon players-icon">&#128100;</div>
+            <div class="stat-content">
+                <h3>{{ players_count }}</h3>
+                <p>Total Players</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon matches-icon">&#9917;</div>
+            <div class="stat-content">
+                <h3>{{ matches_count }}</h3>
+                <p>Matches Played</p>
+            </div>
+        </div>
+        
+        {% if team_stats %}
+        <div class="stat-card">
+            <div class="stat-icon win-icon">&#127942;</div>
+            <div class="stat-content">
+                <h3>{{ team_stats.win_rate }}%</h3>
+                <p>Win Rate</p>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-icon goal-icon">&#9917;</div>
+            <div class="stat-content">
+                <h3>{{ team_stats.goals_scored }}</h3>
+                <p>Goals Scored</p>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- Main Dashboard Content -->
+    <div class="dashboard-grid">
+        <!-- Top Scorers Section -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h2>&#127942; Top Scorers</h2>
+                <a href="{{ url_for('players') }}" class="btn btn-sm">View All</a>
+            </div>
+            <div class="card-body">
+                {% if top_scorers %}
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Player</th>
+                            <th>Position</th>
+                            <th>Goals</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for player in top_scorers %}
+                        <tr>
+                            <td class="rank">{{ loop.index }}</td>
+                            <td>{{ player.name }}</td>
+                            <td><span class="badge badge-position">{{ player.position }}</span></td>
+                            <td class="highlight">{{ player.total_goals }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                <div class="empty-state">
+                    <p>No goal data available yet.</p>
+                    <a href="{{ url_for('upload') }}" class="btn">Upload Data</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Recent Matches Section -->
+        <div class="dashboard-card">
+            <div class="card-header">
+                <h2>&#128197; Recent Matches</h2>
+                <a href="{{ url_for('team_analytics') }}" class="btn btn-sm">View All</a>
+            </div>
+            <div class="card-body">
+                {% if recent_matches %}
+                <div class="match-list">
+                    {% for match in recent_matches %}
+                    <div class="match-item">
+                        <div class="match-date">{{ match.match_date }}</div>
+                        <div class="match-opponent">vs {{ match.opponent }}</div>
+                        <div class="match-score">
+                            <span class="team-goals">{{ match.team_goals }}</span>
+                            <span class="separator">-</span>
+                            <span class="opponent-goals">{{ match.opponent_goals }}</span>
+                        </div>
+                        <div class="match-result">
+                            <span class="result-badge result-{{ match.result|lower }}">{{ match.result }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <p>No matches recorded yet.</p>
+                    <a href="{{ url_for('admin') }}" class="btn">Add Match</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Team Performance Summary -->
+    {% if team_stats %}
+    <div class="dashboard-card full-width">
+        <div class="card-header">
+            <h2>&#128200; Team Performance Summary</h2>
+        </div>
+        <div class="card-body">
+            <div class="performance-grid">
+                <div class="performance-item">
+                    <span class="performance-label">Total Matches</span>
+                    <span class="performance-value">{{ team_stats.total_matches }}</span>
+                </div>
+                <div class="performance-item">
+                    <span class="performance-label">Wins</span>
+                    <span class="performance-value win">{{ team_stats.wins }}</span>
+                </div>
+                <div class="performance-item">
+                    <span class="performance-label">Draws</span>
+                    <span class="performance-value draw">{{ team_stats.draws }}</span>
+                </div>
+                <div class="performance-item">
+                    <span class="performance-label">Losses</span>
+                    <span class="performance-value loss">{{ team_stats.losses }}</span>
+                </div>
+                <div class="performance-item">
+                    <span class="performance-label">Goals/Match</span>
+                    <span class="performance-value">{{ team_stats.avg_goals_per_match }}</span>
+                </div>
+                <div class="performance-item">
+                    <span class="performance-label">Avg Possession</span>
+                    <span class="performance-value">{{ team_stats.avg_possession }}%</span>
+                </div>
+                <div class="performance-item">
+                    <span class="performance-label">Goal Difference</span>
+                    <span class="performance-value {% if team_stats.goal_difference >= 0 %}positive{% else %}negative{% endif %}">
+                        {{ "+" if team_stats.goal_difference > 0 }}{{ team_stats.goal_difference }}
+                    </span>
+                </div>
+            </div>
+            
+            <!-- Last 5 Matches Form -->
+            <div class="form-section">
+                <h4>Last 5 Matches Form</h4>
+                <div class="form-indicators">
+                    {% for result in team_stats.last_5_results %}
+                    <span class="form-dot form-{{ result|lower }}"></span>
+                    {% endfor %}
+                </div>
+                <p class="form-legend">
+                    <span><span class="form-dot form-win"></span> Win</span>
+                    <span><span class="form-dot form-draw"></span> Draw</span>
+                    <span><span class="form-dot form-loss"></span> Loss</span>
+                </p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <h3>Quick Actions</h3>
+        <div class="action-buttons">
+            <a href="{{ url_for('admin') }}" class="action-btn">
+                <span class="action-icon">&#10133;</span>
+                <span>Add Player</span>
+            </a>
+            <a href="{{ url_for('admin') }}" class="action-btn">
+                <span class="action-icon">&#9917;</span>
+                <span>Add Match</span>
+            </a>
+            <a href="{{ url_for('upload') }}" class="action-btn">
+                <span class="action-icon">&#128228;</span>
+                <span>Upload CSV</span>
+            </a>
+            <a href="{{ url_for('predict') }}" class="action-btn">
+                <span class="action-icon">&#128302;</span>
+                <span>Predict Match</span>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,267 @@
+{% extends "base.html" %}
+
+{% block title %}{{ player.name }} - Player Profile{% endblock %}
+
+{% block content %}
+<div class="container">
+    <!-- Back Button -->
+    <a href="{{ url_for('players') }}" class="back-link">&larr; Back to Players</a>
+    
+    <!-- Player Header -->
+    <div class="player-profile-header">
+        <div class="player-avatar-large">
+            {{ player.name[0] }}
+        </div>
+        <div class="player-profile-info">
+            <h1>{{ player.name }}</h1>
+            <div class="player-meta">
+                <span class="badge badge-position">{{ player.position }}</span>
+                {% if player.jersey_number %}
+                <span class="meta-item">&#128308; Jersey #{{ player.jersey_number }}</span>
+                {% endif %}
+                {% if player.age %}
+                <span class="meta-item">&#128197; Age: {{ player.age }}</span>
+                {% endif %}
+                {% if player.nationality %}
+                <span class="meta-item">&#127758; {{ player.nationality }}</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Key Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card highlight-card">
+            <div class="stat-content">
+                <h3>{{ total_matches }}</h3>
+                <p>Matches Played</p>
+            </div>
+        </div>
+        <div class="stat-card highlight-card goals">
+            <div class="stat-content">
+                <h3>{{ total_goals }}</h3>
+                <p>Total Goals</p>
+            </div>
+        </div>
+        <div class="stat-card highlight-card assists">
+            <div class="stat-content">
+                <h3>{{ total_assists }}</h3>
+                <p>Total Assists</p>
+            </div>
+        </div>
+        <div class="stat-card highlight-card">
+            <div class="stat-content">
+                <h3>{{ pass_accuracy }}%</h3>
+                <p>Pass Accuracy</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Charts Section -->
+    {% if stats %}
+    <div class="charts-grid">
+        <!-- Performance Trend Chart -->
+        <div class="chart-card">
+            <div class="card-header">
+                <h2>&#128200; Performance by Season</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+            </div>
+        </div>
+
+        <!-- Goals vs Assists Chart -->
+        <div class="chart-card">
+            <div class="card-header">
+                <h2>&#9917; Goals vs Assists</h2>
+            </div>
+            <div class="chart-container">
+                <canvas id="goalsAssistsChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Season Statistics Table -->
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h2>&#128203; Season Statistics</h2>
+        </div>
+        <div class="card-body">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Season</th>
+                        <th>Matches</th>
+                        <th>Goals</th>
+                        <th>Assists</th>
+                        <th>Pass Accuracy</th>
+                        <th>Minutes</th>
+                        <th>Rating</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for stat in stats %}
+                    <tr>
+                        <td>{{ stat.season }}</td>
+                        <td>{{ stat.matches_played }}</td>
+                        <td class="highlight">{{ stat.goals }}</td>
+                        <td class="highlight">{{ stat.assists }}</td>
+                        <td>{{ ((stat.passes_completed / stat.passes_attempted * 100) if stat.passes_attempted > 0 else 0)|round(1) }}%</td>
+                        <td>{{ stat.minutes_played }}</td>
+                        <td>
+                            <span class="rating-badge rating-{{ (stat.rating / 2)|int }}">
+                                {{ stat.rating }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p>No statistics available for this player yet.</p>
+    </div>
+    {% endif %}
+
+    <!-- Recent Performances -->
+    {% if performances %}
+    <div class="dashboard-card">
+        <div class="card-header">
+            <h2>&#128336; Recent Match Performances</h2>
+        </div>
+        <div class="card-body">
+            <div class="performance-list">
+                {% for perf in performances %}
+                <div class="performance-item-compact">
+                    <div class="perf-date">{{ perf.match_date }}</div>
+                    <div class="perf-stats">
+                        {% if perf.goals > 0 %}
+                        <span class="perf-stat">&#9917; {{ perf.goals }}</span>
+                        {% endif %}
+                        {% if perf.assists > 0 %}
+                        <span class="perf-stat">&#128640; {{ perf.assists }}</span>
+                        {% endif %}
+                        <span class="perf-stat">&#128338; {{ perf.minutes_played }}'</span>
+                    </div>
+                    <div class="perf-rating">
+                        <span class="rating-badge rating-{{ (perf.rating / 2)|int }}">{{ perf.rating }}</span>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+// Fetch player stats data
+fetch('/api/player_stats/{{ player.id }}')
+    .then(response => response.json())
+    .then(data => {
+        if (data.length > 0) {
+            createPerformanceChart(data);
+            createGoalsAssistsChart(data);
+        }
+    });
+
+function createPerformanceChart(data) {
+    const ctx = document.getElementById('performanceChart').getContext('2d');
+    const seasons = data.map(d => d.season);
+    const matches = data.map(d => d.matches_played);
+    const ratings = data.map(d => d.rating);
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: seasons,
+            datasets: [{
+                label: 'Matches Played',
+                data: matches,
+                borderColor: '#3b82f6',
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                tension: 0.4,
+                fill: true
+            }, {
+                label: 'Rating',
+                data: ratings,
+                borderColor: '#10b981',
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                tension: 0.4,
+                fill: true,
+                yAxisID: 'y1'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: 'Matches'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    min: 0,
+                    max: 10,
+                    title: {
+                        display: true,
+                        text: 'Rating'
+                    }
+                }
+            }
+        }
+    });
+}
+
+function createGoalsAssistsChart(data) {
+    const ctx = document.getElementById('goalsAssistsChart').getContext('2d');
+    const seasons = data.map(d => d.season);
+    const goals = data.map(d => d.goals);
+    const assists = data.map(d => d.assists);
+
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: seasons,
+            datasets: [{
+                label: 'Goals',
+                data: goals,
+                backgroundColor: '#3b82f6',
+                borderRadius: 4
+            }, {
+                label: 'Assists',
+                data: assists,
+                backgroundColor: '#10b981',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        stepSize: 1
+                    }
+                }
+            }
+        }
+    });
+}
+</script>
+{% endblock %}
