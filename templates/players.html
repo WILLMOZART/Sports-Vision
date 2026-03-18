@@ -1,337 +1,407 @@
 {% extends "base.html" %}
 
-{% block title %}Players - SportVision Analytics{% endblock %}
+{% block title %}Players — SportVision{% endblock %}
 
 {% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-    :root {
-        --font-display: 'Syne', sans-serif;
-        --font-body: 'Inter', sans-serif;
-        --font-mono: 'DM Mono', monospace;
-    }
-    /* Main content area with background image */
-    .main-content {
-        background-image: url("{{ url_for('static', filename='images/player-bg.jpg') }}");
-        background-size: cover;
-        background-position: center;
-        background-attachment: fixed;
-        background-repeat: no-repeat;
-        position: relative;
-        min-height: 100vh;
-    }
-    
-    /* Dark overlay to make content readable */
-    .main-content::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: rgba(0, 0, 0, 0.65);
-        z-index: 0;
-        pointer-events: none;
-    }
-    
-    /* Ensure all content appears above the overlay */
-    .main-content > * {
-        position: relative;
-        z-index: 1;
-    }
-    
-    /* Page Header styling */
-    .page-header h1 {
-        color: white;
-        text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 215, 0, 0.3);
-        font-weight: 700;
-        letter-spacing: 1px;
-    }
-    
-    .page-header .subtitle {
-        color: rgba(255, 255, 255, 0.95);
-        font-size: 1.1rem;
-        text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-    }
-    
-    /* Player Cards - Stadium premium style */
-    .players-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 25px;
-        margin-top: 30px;
-    }
-    
-    .player-card {
-        background: rgba(28, 35, 45, 0.92) !important;
-        backdrop-filter: blur(10px);
-        border: 1px solid rgba(255, 215, 0, 0.15);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-        border-radius: 16px;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        position: relative;
-    }
-    
-    .player-card:hover {
-        transform: translateY(-8px);
-        border-color: rgba(25, 226, 92, 0.4)
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.2);
-    }
-    
-    /* Player Header with avatar */
-    .player-header {
-        display: flex;
-        align-items: center;
-        padding: 20px;
-        background: linear-gradient(135deg, rgba(0, 0, 0, 0.4), rgba(255, 215, 0, 0.1));
-        border-bottom: 2px solid rgba(255, 215, 0, 0.3);
-    }
-    
-    .player-avatar {
-        width: 60px;
-        height: 60px;
-        background: linear-gradient(135deg, #0bd927, #FFA500);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 24px;
-        font-weight: 700;
-        color: #1a2639;
-        margin-right: 15px;
-        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-        border: 2px solid white;
-    }
-    
-    .player-info h3 {
-        color: white !important;
-        margin: 0 0 5px 0;
-        font-size: 1.2rem;
-        font-weight: 600;
-    }
-    
-    .player-info .badge-position {
-        background: rgba(255, 215, 0, 0.15) !important;
-        color: #FFD700 !important;
-        border: 1px solid rgba(255, 215, 0, 0.3);
-        padding: 3px 10px;
-        border-radius: 20px;
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        display: inline-block;
-        margin-right: 8px;
-    }
-    
-    .jersey-number {
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 0.9rem;
-        font-weight: 500;
-        display: inline-block;
-        padding: 2px 8px;
-        background: rgba(0, 0, 0, 0.3);
-        border-radius: 12px;
-    }
-    
-    /* Player Stats */
-    .player-stats {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 10px;
-        padding: 20px;
-        background: rgba(0, 0, 0, 0.2);
-    }
-    
-    .mini-stat {
-        text-align: center;
-    }
-    
-    .mini-stat-value {
-        display: block;
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: white;
-        line-height: 1.2;
-    }
-    
-    .mini-stat-value.highlight {
-        color: #FFD700;
-        text-shadow: 0 0 10px rgba(255, 215, 0, 0.3);
-    }
-    
-    .mini-stat-label {
-        display: block;
-        color: rgba(255, 255, 255, 0.6);
-        font-size: 0.75rem;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-    }
-    
-    /* Player Footer */
-    .player-footer {
-        padding: 15px 20px;
-        background: rgba(0, 0, 0, 0.3);
-    }
-    
-    .btn-block {
-        display: block;
-        width: 100%;
-        text-align: center;
-        background: rgba(255, 215, 0, 0.15);
-        border: 1px solid rgba(255, 215, 0, 0.3);
-        color: #FFD700;
-        padding: 10px;
-        border-radius: 25px;
-        text-decoration: none;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-    
-    .btn-block:hover {
-        background: #FFD700;
-        color: #1a2639;
-        transform: scale(1.02);
-        box-shadow: 0 5px 15px rgba(255, 215, 0, 0.3);
-    }
-    
-    /* Empty State */
-    .empty-state-container {
-        min-height: 60vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-    
-    .empty-state {
-        background: rgba(28, 35, 45, 0.92);
-        backdrop-filter: blur(10px);
-        border: 2px dashed rgba(255, 215, 0, 0.3);
-        border-radius: 24px;
-        padding: 50px;
-        text-align: center;
-        max-width: 500px;
-        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
-    }
-    
-    .empty-icon {
-        font-size: 5rem;
-        color: #FFD700;
-        margin-bottom: 20px;
-        text-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
-    }
-    
-    .empty-state h3 {
-        color: white;
-        font-size: 1.8rem;
-        margin-bottom: 10px;
-    }
-    
-    .empty-state p {
-        color: rgba(255, 255, 255, 0.8);
-        margin-bottom: 25px;
-        font-size: 1.1rem;
-    }
-    
-    .empty-actions {
-        display: flex;
-        gap: 15px;
-        justify-content: center;
-    }
-    
-    .empty-actions .btn-primary {
-        background: #FFD700;
-        color: #1a2639;
-        padding: 12px 25px;
-        border-radius: 30px;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
-    
-    .empty-actions .btn-primary:hover {
-        background: #FFA500;
-        transform: translateY(-3px);
-        box-shadow: 0 10px 25px rgba(255, 215, 0, 0.3);
-    }
-    
-    .empty-actions .btn-secondary {
-        background: rgba(255, 255, 255, 0.1);
-        color: white;
-        padding: 12px 25px;
-        border-radius: 30px;
-        font-weight: 600;
-        text-decoration: none;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.3s ease;
-    }
-    
-    .empty-actions .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.2);
-        transform: translateY(-3px);
-    }
+/* ─── Reset & Base ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0a0c10;
+  --surface:  #111318;
+  --surface2: #181c23;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.12);
+  --text:     #e8eaf0;
+  --muted:    #6b7280;
+  --faint:    #2a2f3a;
+
+  --green:    #00e676;
+  --green-d:  #00c164;
+  --amber:    #ffb300;
+  --red:      #ff4d4d;
+  --blue:     #4d9fff;
+
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: url("{{ url_for('static', filename='images/stadium.jpg') }}");
+  background-size: cover;
+  background-position: center;
+  opacity: 0.25;
+  z-index: -1;
+}
+
+/* ─── Layout ────────────────────────────────────────────────────── */
+.sv-wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* ─── Page Header ───────────────────────────────────────────────── */
+.sv-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 36px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sv-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sv-logo-mark {
+  width: 44px;
+  height: 44px;
+  background: var(--green);
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 18px;
+  color: #000;
+  flex-shrink: 0;
+}
+
+.sv-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: -0.5px;
+  color: #fff;
+  line-height: 1;
+}
+
+.sv-subtitle {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+/* ─── Section Label ─────────────────────────────────────────────── */
+.sv-section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sv-section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ─── Players Grid ─────────────────────────────────────────────── */
+.players-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.player-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.player-card:hover {
+  background: var(--surface2);
+  border-color: var(--border2);
+  transform: translateY(-2px);
+}
+
+.player-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.player-avatar {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, var(--green), var(--amber));
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 18px;
+  color: #000;
+  flex-shrink: 0;
+}
+
+.player-info h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 15px;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.player-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.badge-position {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pos-gk  { background: rgba(0,230,118,0.12);  color: var(--green); }
+.pos-def { background: rgba(77,159,255,0.12); color: var(--blue); }
+.pos-mid { background: rgba(255,179,0,0.12);  color: var(--amber); }
+.pos-fwd { background: rgba(255,77,77,0.12);  color: var(--red); }
+
+.jersey-number {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.player-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--border);
+}
+
+.mini-stat {
+  background: var(--surface);
+  padding: 14px 8px;
+  text-align: center;
+}
+
+.mini-stat-value {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: #fff;
+  display: block;
+}
+
+.mini-stat-value.highlight {
+  color: var(--green);
+}
+
+.mini-stat-label {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.player-footer {
+  padding: 12px 16px;
+  border-top: 1px solid var(--border);
+}
+
+.btn-view {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 10px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: var(--r-md);
+  color: var(--text);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.btn-view:hover {
+  background: var(--green);
+  color: #000;
+  border-color: var(--green);
+}
+
+/* ─── Empty State ───────────────────────────────────────────────── */
+.sv-empty {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.sv-empty-icon {
+  font-size: 48px;
+  opacity: 0.3;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.sv-empty h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.sv-empty p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.sv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--r-md);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.sv-btn-primary { background: var(--green); color: #000; }
+.sv-btn-primary:hover { background: var(--green-d); }
+
+.sv-btn-secondary {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border2);
+  margin-left: 10px;
+}
+
+.sv-btn-secondary:hover { border-color: rgba(255,255,255,0.25); }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <!-- Page Header -->
-    <div class="page-header">
-        <h1>Player Statistics</h1>
-        <p class="subtitle">View and analyze player performance data</p>
-    </div>
+<div class="sv-wrap">
 
-    <!-- Players Grid -->
-    {% if players %}
-    <div class="players-grid">
-        {% for player in players %}
-        <div class="player-card">
-            <div class="player-header">
-                <div class="player-avatar">
-                    {{ player.name[0] }}
-                </div>
-                <div class="player-info">
-                    <h3>{{ player.name }}</h3>
-                    <span class="badge badge-position">{{ player.position }}</span>
-                    {% if player.jersey_number %}
-                    <span class="jersey-number">#{{ player.jersey_number }}</span>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <div class="player-stats">
-                <div class="mini-stat">
-                    <span class="mini-stat-value">{{ player.total_matches or 0 }}</span>
-                    <span class="mini-stat-label">Matches</span>
-                </div>
-                <div class="mini-stat">
-                    <span class="mini-stat-value highlight">{{ player.total_goals or 0 }}</span>
-                    <span class="mini-stat-label">Goals</span>
-                </div>
-                <div class="mini-stat">
-                    <span class="mini-stat-value highlight">{{ player.total_assists or 0 }}</span>
-                    <span class="mini-stat-label">Assists</span>
-                </div>
-            </div>
-            
-            <div class="player-footer">
-                <a href="{{ url_for('main.player_detail', player_id=player.id) }}" class="btn-block">
-                    View Details
-                </a>
-            </div>
-        </div>
-        {% endfor %}
+  <!-- ── Header ── -->
+  <header class="sv-header">
+    <div class="sv-header-left">
+      <div class="sv-logo-mark">SV</div>
+      <div>
+        <div class="sv-title">Players</div>
+        <div class="sv-subtitle">Squad performance and statistics</div>
+      </div>
     </div>
-    {% else %}
-    <div class="empty-state-container">
-        <div class="empty-state">
-            <div class="empty-icon">&#128100;</div>
-            <h3>No Players Found</h3>
-            <p>Start building your team by adding players.</p>
-            <div class="empty-actions">
-                <a href="{{ url_for('admin.index') }}" class="btn-primary">Add Player</a>
-                <a href="{{ url_for('upload.index') }}" class="btn-secondary">Upload CSV</a>
-            </div>
+  </header>
+
+  {% if players %}
+
+  <!-- ── Players Grid ── -->
+  <div class="sv-section-label">Squad Roster</div>
+  <div class="players-grid">
+    {% for player in players %}
+    <div class="player-card">
+      <div class="player-header">
+        <div class="player-avatar">
+          {{ player.name[0] }}
         </div>
+        <div class="player-info">
+          <h3>{{ player.name }}</h3>
+          <div class="player-meta">
+            <span class="badge-position
+              {% if player.position == 'Goalkeeper' %}pos-gk
+              {% elif player.position == 'Defender' %}pos-def
+              {% elif player.position == 'Midfielder' %}pos-mid
+              {% else %}pos-fwd{% endif %}">
+              {{ player.position[:3] }}
+            </span>
+            {% if player.jersey_number %}
+            <span class="jersey-number">#{{ player.jersey_number }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+      
+      <div class="player-stats">
+        <div class="mini-stat">
+          <span class="mini-stat-value">{{ player.total_matches or 0 }}</span>
+          <span class="mini-stat-label">Matches</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-stat-value highlight">{{ player.total_goals or 0 }}</span>
+          <span class="mini-stat-label">Goals</span>
+        </div>
+        <div class="mini-stat">
+          <span class="mini-stat-value highlight">{{ player.total_assists or 0 }}</span>
+          <span class="mini-stat-label">Assists</span>
+        </div>
+      </div>
+      
+      <div class="player-footer">
+        <a href="{{ url_for('main.player_detail', player_id=player.id) }}" class="btn-view">
+          View Details
+        </a>
+      </div>
     </div>
-    {% endif %}
+    {% endfor %}
+  </div>
+
+  {% else %}
+
+  <div class="sv-card">
+    <div class="sv-card-body sv-empty">
+      <span class="sv-empty-icon">&#128100;</span>
+      <h3>No players found</h3>
+      <p>Start building your squad by adding players.</p>
+      <a href="{{ url_for('admin.index') }}" class="sv-btn sv-btn-primary">Add Player</a>
+      <a href="{{ url_for('upload.index') }}" class="sv-btn sv-btn-secondary">Upload CSV</a>
+    </div>
+  </div>
+
+  {% endif %}
 </div>
 {% endblock %}
