@@ -74,12 +74,13 @@ class CSVService:
                 return False, error
 
             df = pd.read_csv(filepath)
+            df = df.fillna(0)
             added = 0
 
             with db.get_connection() as conn:
                 for _, row in df.iterrows():
-                    team_goals = int(row.get("team_goals", 0) or 0)
-                    opponent_goals = int(row.get("opponent_goals", 0) or 0)
+                    team_goals = int(row.get("team_goals", 0))
+                    opponent_goals = int(row.get("opponent_goals", 0))
 
                     if team_goals > opponent_goals:
                         result = "Win"

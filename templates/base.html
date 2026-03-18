@@ -11,8 +11,22 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Google Fonts - Syne, Inter, DM Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Unified CSS Variables -->
+    <style>
+        :root {
+            --font-display: 'Syne', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'DM Mono', monospace;
+        }
+        body {
+            font-family: var(--font-body);
+        }
+    </style>
     
     {% block extra_head %}{% endblock %}
 </head>
@@ -22,7 +36,7 @@
         <div class="nav-container">
             <a href="{{ url_for('main.dashboard') }}" class="nav-logo">
                 <span class="logo-icon">&#9917;</span>
-                <span class="logo-text">SportVision</span>
+                <span class="logo-text">Hakika Sports</span>
             </a>
             
             <ul class="nav-menu">
@@ -62,7 +76,9 @@
                 </li>
                 {% if logged_in %}
                 <li class="nav-item">
-                    <span class="nav-link">Hello, {{ username }}</span>
+                    <a href="{{ url_for('auth.profile') }}" class="nav-link {% if request.endpoint == 'auth.profile' %}active{% endif %}">
+                        Profile
+                    </a>
                 </li>
                 <li class="nav-item">
                     <a href="{{ url_for('auth.logout') }}" class="nav-link">Logout</a>

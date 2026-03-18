@@ -1,6 +1,13 @@
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from models import db
-from utils.helpers import get_team_stats, get_player_full_stats, login_required
+from utils.helpers import (
+    get_team_stats,
+    get_player_full_stats,
+    login_required,
+    get_formation_stats,
+    get_squad_with_formation,
+)
+from config import Config
 
 main = Blueprint("main", __name__)
 
@@ -68,16 +75,20 @@ def player_detail(player_id):
         flash("Player not found!", "error")
         return redirect(url_for("main.players"))
 
-    return render_template("player_detail.html", **stats)
+    return render_template("player_detail.html", api_key=Config.API_KEY, **stats)
 
 
 @main.route("/team")
 def team_analytics():
     team_stats = get_team_stats()
+    formation_stats = get_formation_stats()
+    squad = get_squad_with_formation()
 
     if not team_stats:
         flash("No match data available. Add matches to see analytics.", "warning")
-        return render_template("team.html", team_stats=None)
+        return render_template(
+            "team.html", team_stats=None, formation_stats=formation_stats, squad=squad
+        )
 
     with db.get_connection() as conn:
         matches = conn.execute(
@@ -87,6 +98,8 @@ def team_analytics():
     return render_template(
         "team.html",
         team_stats=team_stats,
+        formation_stats=formation_stats,
+        squad=squad,
         match_dates=[m["match_date"] for m in matches],
         goals_scored=[m["team_goals"] for m in matches],
         goals_conceded=[m["opponent_goals"] for m in matches],

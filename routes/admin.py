@@ -40,7 +40,34 @@ def add_player():
 
     if not name or not position:
         flash("Name and position are required", "error")
-        return redirect(url_for("admin.index"))
+    return redirect(url_for("admin.index"))
+
+
+@admin.route("/delete_all_players", methods=["POST"])
+@login_required
+@admin_required
+def delete_all_players():
+    with db.get_connection() as conn:
+        conn.execute("DELETE FROM player_stats")
+        conn.execute("DELETE FROM match_performance")
+        conn.execute("DELETE FROM players")
+        conn.commit()
+
+    flash("All players deleted successfully!", "success")
+    return redirect(url_for("admin.index"))
+
+
+@admin.route("/delete_all_matches", methods=["POST"])
+@login_required
+@admin_required
+def delete_all_matches():
+    with db.get_connection() as conn:
+        conn.execute("DELETE FROM match_performance")
+        conn.execute("DELETE FROM matches")
+        conn.commit()
+
+    flash("All matches deleted successfully!", "success")
+    return redirect(url_for("admin.index"))
 
     with db.get_connection() as conn:
         cursor = conn.execute(

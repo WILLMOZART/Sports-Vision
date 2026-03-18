@@ -58,6 +58,193 @@ def admin_required(f):
     return decorated_function
 
 
+def get_formation_stats():
+    with db.get_connection() as conn:
+        players = conn.execute("""
+            SELECT p.id, p.name, p.position,
+                   COALESCE(SUM(ps.goals), 0) as total_goals,
+                   COALESCE(SUM(ps.assists), 0) as total_assists
+            FROM players p
+            LEFT JOIN player_stats ps ON p.id = ps.player_id
+            GROUP BY p.id
+            ORDER BY total_goals DESC
+        """).fetchall()
+
+    if not players:
+        return None
+
+    positions = {"Goalkeeper": 0, "Defender": 0, "Midfielder": 0, "Forward": 0}
+    top_players = []
+
+    for p in players:
+        if p["position"] in positions:
+            positions[p["position"]] += 1
+        top_players.append(
+            {"name": p["name"], "position": p["position"], "goals": p["total_goals"]}
+        )
+
+    formations = [
+        {
+            "name": "4-3-3",
+            "defenders": 4,
+            "midfielders": 3,
+            "forwards": 3,
+            "description": "Attacking formation",
+            "best_for": "Strong attacking options",
+        },
+        {
+            "name": "4-4-2",
+            "defenders": 4,
+            "midfielders": 4,
+            "forwards": 2,
+            "description": "Classic balanced",
+            "best_for": "Good midfield control",
+        },
+        {
+            "name": "3-5-2",
+            "defenders": 3,
+            "midfielders": 5,
+            "forwards": 2,
+            "description": "Aggressive with 5 midfielders",
+            "best_for": "Control the midfield",
+        },
+        {
+            "name": "5-4-1",
+            "defenders": 5,
+            "midfielders": 4,
+            "forwards": 1,
+            "description": "Defensive setup",
+            "best_for": "Strong defense",
+        },
+        {
+            "name": "4-2-3-1",
+            "defenders": 4,
+            "midfielders": 5,
+            "forwards": 1,
+            "description": "Modern formation",
+            "best_for": "Balanced play",
+        },
+        {
+            "name": "5-3-2",
+            "defenders": 5,
+            "midfielders": 3,
+            "forwards": 2,
+            "description": "Defensive with 2 forwards",
+            "best_for": "Counter-attack",
+        },
+        {
+            "name": "4-1-4-1",
+            "defenders": 4,
+            "midfielders": 5,
+            "forwards": 1,
+            "description": "Deep midfield",
+            "best_for": "Extra protection",
+        },
+    ]
+
+    defenders = positions.get("Defender", 0)
+    midfielders = positions.get("Midfielder", 0)
+    forwards = positions.get("Forward", 0)
+
+    valid_formations = []
+    for f in formations:
+        if (
+            defenders >= f["defenders"]
+            and midfielders >= f["midfielders"]
+            and forwards >= f["forwards"]
+        ):
+            valid_formations.append(f)
+
+    if not valid_formations:
+        valid_formations = [formations[0]]
+
+    return {
+        "positions": positions,
+        "formations": valid_formations[:4],
+        "top_scorers": top_players[:5],
+    }
+
+
+def get_squad_with_formation():
+    with db.get_connection() as conn:
+        players = conn.execute("""
+            SELECT p.id, p.name, p.position,
+                   COALESCE(SUM(ps.goals), 0) as total_goals,
+                   COALESCE(SUM(ps.assists), 0) as total_assists,
+                   COALESCE(AVG(ps.rating), 0) as avg_rating
+            FROM players p
+            LEFT JOIN player_stats ps ON p.id = ps.player_id
+            GROUP BY p.id
+            ORDER BY total_goals DESC, avg_rating DESC
+        """).fetchall()
+
+    if not players:
+        return None
+
+    by_position = {"Goalkeeper": [], "Defender": [], "Midfielder": [], "Forward": []}
+
+    for p in players:
+        if p["position"] in by_position:
+            by_position[p["position"]].append(
+                {
+                    "id": p["id"],
+                    "name": p["name"],
+                    "goals": p["total_goals"],
+                    "assists": p["total_assists"],
+                    "rating": round(p["avg_rating"], 1),
+                }
+            )
+
+    formations = [
+        {"name": "4-3-3", "defenders": 4, "midfielders": 3, "forwards": 3},
+        {"name": "4-4-2", "defenders": 4, "midfielders": 4, "forwards": 2},
+        {"name": "3-5-2", "defenders": 3, "midfielders": 5, "forwards": 2},
+        {"name": "5-4-1", "defenders": 5, "midfielders": 4, "forwards": 1},
+        {"name": "4-2-3-1", "defenders": 4, "midfielders": 5, "forwards": 1},
+    ]
+
+    valid_formations = []
+    for f in formations:
+        if (
+            len(by_position["Defender"]) >= f["defenders"]
+            and len(by_position["Midfielder"]) >= f["midfielders"]
+            and len(by_position["Forward"]) >= f["forwards"]
+            and len(by_position["Goalkeeper"]) >= 1
+        ):
+            valid_formations.append(f)
+
+    if not valid_formations:
+        valid_formations = formations[:1]
+
+    best_formation = valid_formations[0]
+
+    lineup = {
+        "formation": best_formation["name"],
+        "goalkeeper": by_position["Goalkeeper"][0]
+        if by_position["Goalkeeper"]
+        else None,
+        "defenders": by_position["Defender"][: best_formation["defenders"]],
+        "midfielders": by_position["Midfielder"][: best_formation["midfielders"]],
+        "forwards": by_position["Forward"][: best_formation["forwards"]],
+        "substitutes": {
+            "Goalkeeper": by_position["Goalkeeper"][1:3]
+            if len(by_position["Goalkeeper"]) > 1
+            else [],
+            "Defenders": by_position["Defender"][
+                best_formation["defenders"] : best_formation["defenders"] + 3
+            ],
+            "Midfielders": by_position["Midfielder"][
+                best_formation["midfielders"] : best_formation["midfielders"] + 3
+            ],
+            "Forwards": by_position["Forward"][
+                best_formation["forwards"] : best_formation["forwards"] + 3
+            ],
+        },
+    }
+
+    return lineup
+
+
 def get_team_stats():
     with db.get_connection() as conn:
         matches = conn.execute(

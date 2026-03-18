@@ -97,24 +97,30 @@ class TestMainRoutes:
 
 
 class TestAPIEndpoints:
+    API_KEY = "sportvision-api-key-2024"
+
     def test_api_players(self, client):
-        response = client.get("/api/players")
+        response = client.get("/api/players", headers={"X-API-Key": self.API_KEY})
         assert response.status_code == 200
         assert response.is_json
 
     def test_api_matches(self, client):
-        response = client.get("/api/matches")
+        response = client.get("/api/matches", headers={"X-API-Key": self.API_KEY})
         assert response.status_code == 200
         assert response.is_json
 
     def test_api_team_performance(self, client):
-        response = client.get("/api/team_performance")
+        response = client.get(
+            "/api/team_performance", headers={"X-API-Key": self.API_KEY}
+        )
         assert response.status_code == 200
         assert response.is_json
 
     def test_create_player_api(self, client):
         response = client.post(
-            "/api/players", json={"name": "Test Player", "position": "Forward"}
+            "/api/players",
+            json={"name": "Test Player", "position": "Forward"},
+            headers={"X-API-Key": self.API_KEY},
         )
         assert response.status_code == 201
 
@@ -128,6 +134,7 @@ class TestAPIEndpoints:
                 "team_goals": 2,
                 "opponent_goals": 1,
             },
+            headers={"X-API-Key": self.API_KEY},
         )
         assert response.status_code == 201
 

@@ -1,229 +1,1249 @@
 {% extends "base.html" %}
 
-{% block title %}Team Analytics - SportVision Analytics{% endblock %}
+{% block title %}Team Analytics — SportVision{% endblock %}
+
+{% block extra_head %}
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ─── Reset & Base ─────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:       #0a0c10;
+  --surface:  #111318;
+  --surface2: #181c23;
+  --border:   rgba(255,255,255,0.07);
+  --border2:  rgba(255,255,255,0.12);
+  --text:     #e8eaf0;
+  --muted:    #6b7280;
+  --faint:    #2a2f3a;
+
+  --green:    #00e676;
+  --green-d:  #00c164;
+  --amber:    #ffb300;
+  --red:      #ff4d4d;
+  --blue:     #4d9fff;
+
+  --font-display: 'Syne', sans-serif;
+  --font-body:    'Inter', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Layout ────────────────────────────────────────────────────── */
+.sv-wrap {
+  max-width: 1180px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+/* ─── Page Header ───────────────────────────────────────────────── */
+.sv-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  margin-bottom: 36px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sv-header-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.sv-logo-mark {
+  width: 44px;
+  height: 44px;
+  background: var(--green);
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: 18px;
+  color: #000;
+  flex-shrink: 0;
+}
+
+.sv-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 26px;
+  letter-spacing: -0.5px;
+  color: #fff;
+  line-height: 1;
+}
+
+.sv-subtitle {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 4px;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.sv-header-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  background: var(--surface2);
+  border: 1px solid var(--border2);
+  border-radius: 99px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.sv-header-badge::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+/* ─── Section Label ─────────────────────────────────────────────── */
+.sv-section-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sv-section-label::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* ─── KPI Grid ──────────────────────────────────────────────────── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  margin-bottom: 32px;
+  background: var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+
+.kpi-card {
+  background: var(--surface);
+  padding: 22px 20px;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.2s;
+}
+
+.kpi-card:hover { background: var(--surface2); }
+
+.kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  background: var(--accent, transparent);
+}
+
+.kpi-card.accent-green  { --accent: var(--green); }
+.kpi-card.accent-amber  { --accent: var(--amber); }
+.kpi-card.accent-blue   { --accent: var(--blue); }
+.kpi-card.accent-red    { --accent: var(--red); }
+
+.kpi-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-family: var(--font-mono);
+  margin-bottom: 10px;
+}
+
+.kpi-value {
+  font-family: var(--font-display);
+  font-size: 36px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1;
+  letter-spacing: -1px;
+}
+
+.kpi-value span {
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0;
+  opacity: 0.5;
+}
+
+.kpi-delta {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  margin-top: 8px;
+  padding: 2px 7px;
+  border-radius: 4px;
+}
+
+.kpi-delta.up   { color: var(--green); background: rgba(0,230,118,0.08); }
+.kpi-delta.down { color: var(--red);   background: rgba(255,77,77,0.08); }
+.kpi-delta.neu  { color: var(--muted); background: var(--faint); }
+
+/* ─── Two-column layout ─────────────────────────────────────────── */
+.sv-cols {
+  display: grid;
+  grid-template-columns: 1fr 380px;
+  gap: 16px;
+  margin-bottom: 16px;
+  align-items: start;
+}
+
+/* ─── Cards ─────────────────────────────────────────────────────── */
+.sv-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.sv-card-hdr {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.sv-card-title {
+  font-family: var(--font-display);
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: -0.2px;
+}
+
+.sv-card-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--muted);
+  padding: 3px 8px;
+  background: var(--faint);
+  border-radius: 4px;
+}
+
+.sv-card-body { padding: 20px; }
+
+/* ─── Football Pitch ─────────────────────────────────────────────── */
+.pitch-wrap {
+  background: #0d3b1f;
+  border-radius: var(--r-md);
+  padding: 20px 16px;
+  position: relative;
+  min-height: 360px;
+  overflow: hidden;
+}
+
+.pitch-wrap::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 29px,
+      rgba(255,255,255,0.018) 29px,
+      rgba(255,255,255,0.018) 30px
+    );
+}
+
+.pitch-lines {
+  position: absolute;
+  inset: 12px;
+  pointer-events: none;
+}
+
+.pitch-lines svg {
+  width: 100%;
+  height: 100%;
+}
+
+.pitch-rows {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px 0;
+}
+
+.pitch-row {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.player-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: default;
+}
+
+.player-avatar {
+  width: 36px;
+  height: 36px;
+  background: rgba(255,255,255,0.1);
+  border: 1.5px solid rgba(255,255,255,0.2);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 11px;
+  color: #fff;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.player-chip:hover .player-avatar {
+  border-color: var(--green);
+  background: rgba(0,230,118,0.15);
+}
+
+.player-chip-name {
+  font-size: 9px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.85);
+  text-align: center;
+  white-space: nowrap;
+  max-width: 54px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+.player-chip-stat {
+  font-family: var(--font-mono);
+  font-size: 8px;
+  color: var(--green);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+}
+
+.formation-badge {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 0.05em;
+  z-index: 3;
+}
+
+/* ─── Subs Table ─────────────────────────────────────────────────── */
+.subs-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.subs-table thead th {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+  text-align: left;
+  padding: 0 10px 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.subs-table tbody tr {
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+
+.subs-table tbody tr:last-child { border-bottom: none; }
+.subs-table tbody tr:hover { background: var(--surface2); }
+
+.subs-table td { padding: 10px; font-size: 13px; }
+
+.pos-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 500;
+  padding: 2px 6px;
+  border-radius: 3px;
+  letter-spacing: 0.08em;
+}
+
+.pos-gk  { background: rgba(0,230,118,0.12);  color: var(--green); }
+.pos-def { background: rgba(77,159,255,0.12); color: var(--blue); }
+.pos-mid { background: rgba(255,179,0,0.12);  color: var(--amber); }
+.pos-fwd { background: rgba(255,77,77,0.12);  color: var(--red); }
+
+.td-goals {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--muted);
+  text-align: right;
+}
+
+/* ─── Formation Options ──────────────────────────────────────────── */
+.formation-options {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.formation-opt {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+  padding: 14px 12px;
+  transition: border-color 0.2s;
+}
+
+.formation-opt:hover { border-color: var(--border2); }
+
+.fo-name {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.fo-desc {
+  font-size: 11px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  line-height: 1.4;
+}
+
+.fo-best {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--green);
+}
+
+/* ─── Squad Bar ──────────────────────────────────────────────────── */
+.squad-bar-wrap {
+  display: flex;
+  height: 6px;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 14px;
+  gap: 2px;
+}
+
+.squad-bar-seg { height: 100%; border-radius: 2px; }
+
+.squad-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.squad-stat {
+  text-align: center;
+  padding: 10px 8px;
+  background: var(--surface2);
+  border-radius: var(--r-sm);
+  border: 1px solid var(--border);
+}
+
+.squad-stat-num {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.squad-stat-lbl {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+}
+
+/* ─── Top Scorers ────────────────────────────────────────────────── */
+.scorers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.scorer-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  transition: background 0.15s;
+}
+
+.scorer-row:hover { background: var(--surface2); }
+
+.scorer-rank {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--muted);
+  width: 18px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.scorer-rank.gold   { color: #ffd700; }
+.scorer-rank.silver { color: #c0c0c0; }
+.scorer-rank.bronze { color: #cd7f32; }
+
+.scorer-avatar-sm {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--faint);
+  border: 1px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+
+.scorer-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+}
+
+.scorer-bar {
+  width: 60px;
+  height: 3px;
+  background: var(--faint);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.scorer-bar-fill {
+  height: 100%;
+  background: var(--green);
+  border-radius: 2px;
+}
+
+.scorer-goals {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  color: #fff;
+  min-width: 28px;
+  text-align: right;
+}
+
+/* ─── Charts ─────────────────────────────────────────────────────── */
+.charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.chart-container {
+  height: 180px;
+  position: relative;
+}
+
+/* ─── Results Distribution ───────────────────────────────────────── */
+.results-bar {
+  display: flex;
+  height: 40px;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  gap: 3px;
+  margin-bottom: 14px;
+}
+
+.result-seg {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 12px;
+  font-weight: 600;
+  transition: filter 0.2s;
+}
+
+.result-seg:hover { filter: brightness(1.15); }
+.result-seg.win  { background: var(--green); color: #000; border-radius: var(--r-sm) 0 0 var(--r-sm); }
+.result-seg.draw { background: var(--amber); color: #000; }
+.result-seg.loss { background: #1e2530; color: var(--red); border: 1px solid rgba(255,77,77,0.3); border-radius: 0 var(--r-sm) var(--r-sm) 0; }
+
+.results-legend {
+  display: flex;
+  gap: 20px;
+}
+
+.rl-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.rl-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+}
+
+.rl-count {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text);
+  margin-left: 2px;
+}
+
+/* ─── Form Display ────────────────────────────────────────────────── */
+.form-track {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.form-pill {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.form-pill.W { background: rgba(0,230,118,0.15); color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
+.form-pill.D { background: rgba(255,179,0,0.12); color: var(--amber); border: 1px solid rgba(255,179,0,0.3); }
+.form-pill.L { background: rgba(255,77,77,0.1);  color: var(--red);   border: 1px solid rgba(255,77,77,0.25); }
+
+.form-divider {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+  margin: 0 4px;
+}
+
+/* ─── Empty State ─────────────────────────────────────────────────── */
+.sv-empty {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.sv-empty-icon {
+  font-size: 48px;
+  opacity: 0.3;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.sv-empty h3 {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.sv-empty p {
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.sv-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: var(--r-md);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s;
+}
+
+.sv-btn-primary { background: var(--green); color: #000; }
+.sv-btn-primary:hover { background: var(--green-d); }
+
+.sv-btn-secondary {
+  background: var(--surface2);
+  color: var(--text);
+  border: 1px solid var(--border2);
+  margin-left: 10px;
+}
+
+.sv-btn-secondary:hover { border-color: rgba(255,255,255,0.25); }
+
+/* ─── Responsive ─────────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .kpi-grid         { grid-template-columns: repeat(2, 1fr); }
+  .sv-cols          { grid-template-columns: 1fr; }
+  .charts-grid      { grid-template-columns: 1fr; }
+  .formation-options { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 560px) {
+  .kpi-grid          { grid-template-columns: 1fr 1fr; }
+  .kpi-value         { font-size: 26px; }
+  .formation-options { grid-template-columns: 1fr; }
+  .squad-stats       { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="container">
-    <!-- Page Header -->
-    <div class="page-header">
-        <h1>Team Analytics</h1>
-        <p class="subtitle">Comprehensive team performance analysis</p>
+<div class="sv-wrap">
+
+  <!-- ── Header ── -->
+  <header class="sv-header">
+    <div class="sv-header-left">
+      <div class="sv-logo-mark">SV</div>
+      <div>
+        <div class="sv-title">Team Analytics</div>
+        <div class="sv-subtitle">Performance intelligence dashboard</div>
+      </div>
     </div>
+    <div class="sv-header-badge">Live Season Data</div>
+  </header>
 
-    {% if team_stats %}
-    <!-- Key Metrics -->
-    <div class="stats-grid">
-        <div class="stat-card metric-card">
-            <div class="metric-icon win">&#127942;</div>
-            <div class="metric-content">
-                <span class="metric-value">{{ team_stats.win_rate }}%</span>
-                <span class="metric-label">Win Rate</span>
-            </div>
-        </div>
-        <div class="stat-card metric-card">
-            <div class="metric-icon goal">&#9917;</div>
-            <div class="metric-content">
-                <span class="metric-value">{{ team_stats.avg_goals_per_match }}</span>
-                <span class="metric-label">Goals/Match</span>
-            </div>
-        </div>
-        <div class="stat-card metric-card">
-            <div class="metric-icon possession">&#9917;</div>
-            <div class="metric-content">
-                <span class="metric-value">{{ team_stats.avg_possession }}%</span>
-                <span class="metric-label">Avg Possession</span>
-            </div>
-        </div>
-        <div class="stat-card metric-card">
-            <div class="metric-icon balance">
-                {{ "+" if team_stats.goal_difference > 0 }}{{ team_stats.goal_difference }}
-            </div>
-            <div class="metric-content">
-                <span class="metric-value">{{ team_stats.goals_scored }}:{{ team_stats.goals_conceded }}</span>
-                <span class="metric-label">Goals For:Against</span>
-            </div>
-        </div>
+  {% if team_stats %}
+
+  <!-- ── KPI Row ── -->
+  <div class="sv-section-label">Key Performance Indicators</div>
+  <div class="kpi-grid">
+    <div class="kpi-card accent-green">
+      <div class="kpi-label">Win Rate</div>
+      <div class="kpi-value">{{ team_stats.win_rate }}<span>%</span></div>
+      <div class="kpi-delta up">↑ This Season</div>
     </div>
-
-    <!-- Charts Section -->
-    <div class="charts-grid">
-        <!-- Goals Chart -->
-        <div class="chart-card">
-            <div class="card-header">
-                <h2>&#9917; Goals Scored vs Conceded</h2>
-            </div>
-            <div class="chart-container">
-                <canvas id="goalsChart"></canvas>
-            </div>
-        </div>
-
-        <!-- Possession Chart -->
-        <div class="chart-card">
-            <div class="card-header">
-                <h2>&#128200; Possession Trend</h2>
-            </div>
-            <div class="chart-container">
-                <canvas id="possessionChart"></canvas>
-            </div>
-        </div>
+    <div class="kpi-card accent-amber">
+      <div class="kpi-label">Goals / Match</div>
+      <div class="kpi-value">{{ team_stats.avg_goals_per_match }}</div>
+      <div class="kpi-delta neu">Avg per game</div>
     </div>
+    <div class="kpi-card accent-blue">
+      <div class="kpi-label">Possession</div>
+      <div class="kpi-value">{{ team_stats.avg_possession }}<span>%</span></div>
+      <div class="kpi-delta {{ 'up' if team_stats.avg_possession >= 50 else 'down' }}">
+        {{ '↑ Dominant' if team_stats.avg_possession >= 50 else '↓ Low' }}
+      </div>
+    </div>
+    <div class="kpi-card accent-red">
+      <div class="kpi-label">Goal Difference</div>
+      <div class="kpi-value">
+        {{ '+' if team_stats.goal_difference > 0 }}{{ team_stats.goal_difference }}
+      </div>
+      <div class="kpi-delta {{ 'up' if team_stats.goal_difference >= 0 else 'down' }}">
+        {{ team_stats.goals_scored }}F · {{ team_stats.goals_conceded }}A
+      </div>
+    </div>
+  </div>
 
-    <!-- Results Distribution -->
-    <div class="dashboard-card">
-        <div class="card-header">
-            <h2>&#128202; Results Distribution</h2>
-        </div>
-        <div class="card-body">
-            <div class="results-distribution">
-                <div class="result-bar">
-                    <div class="result-segment win" style="width: {{ (team_stats.wins / team_stats.total_matches * 100) }}%">
-                        <span class="segment-label">{{ team_stats.wins }} Wins</span>
-                    </div>
-                    <div class="result-segment draw" style="width: {{ (team_stats.draws / team_stats.total_matches * 100) }}%">
-                        <span class="segment-label">{{ team_stats.draws }} Draws</span>
-                    </div>
-                    <div class="result-segment loss" style="width: {{ (team_stats.losses / team_stats.total_matches * 100) }}%">
-                        <span class="segment-label">{{ team_stats.losses }} Losses</span>
-                    </div>
+  {% if formation_stats and formation_stats.formations and squad %}
+
+  <!-- ── Formation + Subs ── -->
+  <div class="sv-section-label">Tactical Setup</div>
+  
+  <!-- Formation Selector -->
+  <div style="margin-bottom: 20px; display: flex; align-items: center; gap: 16px;">
+    <label style="font-family: var(--font-mono); font-size: 12px; color: var(--muted); text-transform: uppercase;">Formation:</label>
+    <select id="formationSelect" onchange="updateFormation()" style="padding: 10px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-md); color: var(--text); font-family: var(--font-display); font-weight: 600; font-size: 14px; cursor: pointer;">
+      {% for formation in formation_stats.formations %}
+      <option value="{{ formation.name }}" {% if loop.index == 1 %}selected{% endif %}>{{ formation.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+
+  <div class="sv-cols">
+
+    <!-- Pitch -->
+    <div class="sv-card">
+      <div class="sv-card-hdr">
+        <span class="sv-card-title">Starting XI</span>
+        <span class="sv-card-tag">{{ squad.formation }}</span>
+      </div>
+      <div class="sv-card-body">
+        <div class="pitch-wrap">
+          <div class="formation-badge" id="formationBadge">{{ squad.formation }}</div>
+          <div class="pitch-lines">
+            <svg viewBox="0 0 100 100" preserveAspectRatio="none" fill="none">
+              <rect x="1" y="1" width="98" height="98" rx="2" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
+              <line x1="1" y1="50" x2="99" y2="50" stroke="rgba(255,255,255,0.12)" stroke-width="0.5"/>
+              <circle cx="50" cy="50" r="12" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/>
+              <circle cx="50" cy="50" r="0.8" fill="rgba(255,255,255,0.2)"/>
+              <rect x="28" y="1" width="44" height="14" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+              <rect x="38" y="1" width="24" height="7" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+              <rect x="28" y="85" width="44" height="14" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+              <rect x="38" y="92" width="24" height="7" stroke="rgba(255,255,255,0.08)" stroke-width="0.5"/>
+            </svg>
+          </div>
+          <div class="pitch-rows">
+            <div class="pitch-row" id="forwardsRow">
+              {% for player in squad.forwards %}
+              <div class="player-chip">
+                <div class="player-avatar">{{ player.name[0] }}</div>
+                <div class="player-chip-name">{{ player.name }}</div>
+                {% if player.goals > 0 %}<div class="player-chip-stat">{{ player.goals }}g</div>{% endif %}
+              </div>
+              {% endfor %}
+            </div>
+            <div class="pitch-row" id="midfieldersRow">
+              {% for player in squad.midfielders %}
+              <div class="player-chip">
+                <div class="player-avatar">{{ player.name[0] }}</div>
+                <div class="player-chip-name">{{ player.name }}</div>
+                {% if player.goals > 0 %}<div class="player-chip-stat">{{ player.goals }}g</div>{% endif %}
+              </div>
+              {% endfor %}
+            </div>
+            <div class="pitch-row" id="defendersRow">
+              {% for player in squad.defenders %}
+              <div class="player-chip">
+                <div class="player-avatar">{{ player.name[0] }}</div>
+                <div class="player-chip-name">{{ player.name }}</div>
+                {% if player.goals > 0 %}<div class="player-chip-stat">{{ player.goals }}g</div>{% endif %}
+              </div>
+              {% endfor %}
+            </div>
+            <div class="pitch-row" id="goalkeeperRow">
+              {% if squad.goalkeeper %}
+              <div class="player-chip">
+                <div class="player-avatar" style="border-color: var(--amber); background: rgba(255,179,0,0.12);">
+                  {{ squad.goalkeeper.name[0] }}
                 </div>
-                <div class="results-legend">
-                    <div class="legend-item">
-                        <span class="legend-color win"></span>
-                        <span>Wins ({{ team_stats.wins }})</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color draw"></span>
-                        <span>Draws ({{ team_stats.draws }})</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color loss"></span>
-                        <span>Losses ({{ team_stats.losses }})</span>
-                    </div>
-                </div>
+                <div class="player-chip-name">{{ squad.goalkeeper.name }}</div>
+                <div class="player-chip-stat" style="color: var(--amber);">GK</div>
+              </div>
+              {% endif %}
             </div>
+          </div>
         </div>
+      </div>
     </div>
 
-    <!-- Last 5 Matches Form -->
-    <div class="dashboard-card">
-        <div class="card-header">
-            <h2>&#128200; Last 5 Matches Form</h2>
+    <!-- Right column -->
+    <div>
+      <div class="sv-card">
+        <div class="sv-card-hdr">
+          <span class="sv-card-title">Substitutes</span>
+          <span class="sv-card-tag">Bench</span>
         </div>
-        <div class="card-body">
-            <div class="form-display">
-                {% for result in team_stats.last_5_results %}
-                <div class="form-box form-{{ result|lower }}">
-                    {{ result[0] }}
-                </div>
-                {% endfor %}
+        <div class="sv-card-body" style="padding: 0;">
+          <table class="subs-table">
+            <thead>
+              <tr>
+                <th style="padding-left: 14px;">Pos</th>
+                <th>Player</th>
+                <th style="text-align:right; padding-right:14px;">G</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for p in squad.substitutes.Goalkeeper %}
+              <tr><td><span class="pos-badge pos-gk">GK</span></td><td>{{ p.name }}</td><td class="td-goals">{{ p.goals }}</td></tr>
+              {% endfor %}
+              {% for p in squad.substitutes.Defenders %}
+              <tr><td><span class="pos-badge pos-def">DEF</span></td><td>{{ p.name }}</td><td class="td-goals">{{ p.goals }}</td></tr>
+              {% endfor %}
+              {% for p in squad.substitutes.Midfielders %}
+              <tr><td><span class="pos-badge pos-mid">MID</span></td><td>{{ p.name }}</td><td class="td-goals">{{ p.goals }}</td></tr>
+              {% endfor %}
+              {% for p in squad.substitutes.Forwards %}
+              <tr><td><span class="pos-badge pos-fwd">FWD</span></td><td>{{ p.name }}</td><td class="td-goals">{{ p.goals }}</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="sv-card">
+        <div class="sv-card-hdr">
+          <span class="sv-card-title">Formation Options</span>
+        </div>
+        <div class="sv-card-body">
+          <div class="formation-options">
+            {% for formation in formation_stats.formations %}
+            <div class="formation-opt">
+              <div class="fo-name">{{ formation.name }}</div>
+              <div class="fo-desc">{{ formation.description }}</div>
+              <div class="fo-best">{{ formation.best_for }}</div>
             </div>
+            {% endfor %}
+          </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Squad + Scorers ── -->
+  <div class="sv-section-label">Squad Intelligence</div>
+  <div class="sv-cols">
+
+    <div class="sv-card">
+      <div class="sv-card-hdr">
+        <span class="sv-card-title">Squad Composition</span>
+        <span class="sv-card-tag">
+          {{ formation_stats.positions.Goalkeeper + formation_stats.positions.Defender + formation_stats.positions.Midfielder + formation_stats.positions.Forward }} players
+        </span>
+      </div>
+      <div class="sv-card-body">
+        {% set total = formation_stats.positions.Goalkeeper + formation_stats.positions.Defender + formation_stats.positions.Midfielder + formation_stats.positions.Forward %}
+        {% if total > 0 %}
+        <div class="squad-bar-wrap">
+          <div class="squad-bar-seg" style="width:{{ (formation_stats.positions.Goalkeeper/total*100)|round }}%; background: var(--green);"></div>
+          <div class="squad-bar-seg" style="width:{{ (formation_stats.positions.Defender/total*100)|round }}%; background: var(--blue);"></div>
+          <div class="squad-bar-seg" style="width:{{ (formation_stats.positions.Midfielder/total*100)|round }}%; background: var(--amber);"></div>
+          <div class="squad-bar-seg" style="width:{{ (formation_stats.positions.Forward/total*100)|round }}%; background: var(--red);"></div>
+        </div>
+        {% endif %}
+        <div class="squad-stats">
+          <div class="squad-stat">
+            <div class="squad-stat-num" style="color: var(--green);">{{ formation_stats.positions.Goalkeeper }}</div>
+            <div class="squad-stat-lbl">GK</div>
+          </div>
+          <div class="squad-stat">
+            <div class="squad-stat-num" style="color: var(--blue);">{{ formation_stats.positions.Defender }}</div>
+            <div class="squad-stat-lbl">DEF</div>
+          </div>
+          <div class="squad-stat">
+            <div class="squad-stat-num" style="color: var(--amber);">{{ formation_stats.positions.Midfielder }}</div>
+            <div class="squad-stat-lbl">MID</div>
+          </div>
+          <div class="squad-stat">
+            <div class="squad-stat-num" style="color: var(--red);">{{ formation_stats.positions.Forward }}</div>
+            <div class="squad-stat-lbl">FWD</div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    {% else %}
-    <div class="empty-state-container">
-        <div class="empty-state">
-            <div class="empty-icon">&#9917;</div>
-            <h3>No Match Data Available</h3>
-            <p>Add matches to see team analytics and performance charts.</p>
-            <div class="empty-actions">
-                <a href="{{ url_for('admin.index') }}" class="btn btn-primary">Add Match</a>
-                <a href="{{ url_for('upload.index') }}" class="btn btn-secondary">Upload CSV</a>
+    <div class="sv-card">
+      <div class="sv-card-hdr">
+        <span class="sv-card-title">Top Scorers</span>
+        <span class="sv-card-tag">By goals</span>
+      </div>
+      <div class="sv-card-body" style="padding: 8px 12px;">
+        <div class="scorers-list">
+          {% set max_goals = formation_stats.top_scorers[0].goals if formation_stats.top_scorers and formation_stats.top_scorers[0].goals > 0 else 1 %}
+          {% for player in formation_stats.top_scorers %}
+          <div class="scorer-row">
+            <span class="scorer-rank {{ 'gold' if loop.index == 1 else 'silver' if loop.index == 2 else 'bronze' if loop.index == 3 else '' }}">
+              {{ loop.index }}
+            </span>
+            <div class="scorer-avatar-sm">{{ player.name[0] }}</div>
+            <span class="scorer-name">{{ player.name }}</span>
+            <span class="pos-badge
+              {% if player.position == 'Goalkeeper' %}pos-gk
+              {% elif player.position == 'Defender' %}pos-def
+              {% elif player.position == 'Midfielder' %}pos-mid
+              {% else %}pos-fwd{% endif %}">
+              {{ player.position[:3]|upper }}
+            </span>
+            <div class="scorer-bar">
+              <div class="scorer-bar-fill" style="width: {{ (player.goals / max_goals * 100)|round }}%"></div>
             </div>
+            <span class="scorer-goals">{{ player.goals }}</span>
+          </div>
+          {% endfor %}
         </div>
+      </div>
     </div>
-    {% endif %}
+
+  </div>
+  {% endif %}
+
+  <!-- ── Charts ── -->
+  <div class="sv-section-label">Match Statistics</div>
+  <div class="charts-grid">
+    <div class="sv-card">
+      <div class="sv-card-hdr">
+        <span class="sv-card-title">Goals — Scored vs Conceded</span>
+        <span class="sv-card-tag">Per match</span>
+      </div>
+      <div class="sv-card-body">
+        <div class="chart-container"><canvas id="goalsChart"></canvas></div>
+      </div>
+    </div>
+    <div class="sv-card">
+      <div class="sv-card-hdr">
+        <span class="sv-card-title">Possession</span>
+        <span class="sv-card-tag">% by match</span>
+      </div>
+      <div class="sv-card-body">
+        <div class="chart-container"><canvas id="possessionChart"></canvas></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Results + Form ── -->
+  <div class="sv-section-label">Results Summary</div>
+  <div class="sv-cols">
+
+    <div class="sv-card">
+      <div class="sv-card-hdr">
+        <span class="sv-card-title">Results Distribution</span>
+        <span class="sv-card-tag">{{ team_stats.total_matches }} matches</span>
+      </div>
+      <div class="sv-card-body">
+        <div class="results-bar">
+          <div class="result-seg win" style="width: {{ (team_stats.wins / team_stats.total_matches * 100)|round }}%">
+            {{ team_stats.wins }}W
+          </div>
+          <div class="result-seg draw" style="width: {{ (team_stats.draws / team_stats.total_matches * 100)|round }}%">
+            {{ team_stats.draws }}D
+          </div>
+          <div class="result-seg loss" style="width: {{ (team_stats.losses / team_stats.total_matches * 100)|round }}%">
+            {{ team_stats.losses }}L
+          </div>
+        </div>
+        <div class="results-legend">
+          <div class="rl-item"><div class="rl-dot" style="background:var(--green)"></div>Wins <span class="rl-count">{{ team_stats.wins }}</span></div>
+          <div class="rl-item"><div class="rl-dot" style="background:var(--amber)"></div>Draws <span class="rl-count">{{ team_stats.draws }}</span></div>
+          <div class="rl-item"><div class="rl-dot" style="background:var(--red)"></div>Losses <span class="rl-count">{{ team_stats.losses }}</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sv-card">
+      <div class="sv-card-hdr">
+        <span class="sv-card-title">Recent Form</span>
+        <span class="sv-card-tag">Last 5</span>
+      </div>
+      <div class="sv-card-body">
+        <div class="form-track">
+          {% for result in team_stats.last_5_results %}
+          {% if not loop.first %}<div class="form-divider"></div>{% endif %}
+          <div class="form-pill {{ result[0] }}">{{ result[0] }}</div>
+          {% endfor %}
+        </div>
+        <div style="margin-top: 14px; font-size: 12px; color: var(--muted);">
+          {% set wins_5 = team_stats.last_5_results | selectattr('0', 'eq', 'W') | list | length %}
+          {{ wins_5 }} wins from last 5 matches
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  {% else %}
+
+  <div class="sv-card">
+    <div class="sv-card-body sv-empty">
+      <span class="sv-empty-icon">⚽</span>
+      <h3>No match data yet</h3>
+      <p>Add your first match to unlock team analytics and performance charts.</p>
+      <a href="{{ url_for('admin.index') }}" class="sv-btn sv-btn-primary">Add Match</a>
+      <a href="{{ url_for('upload.index') }}" class="sv-btn sv-btn-secondary">Upload CSV</a>
+    </div>
+  </div>
+
+  {% endif %}
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
 {% if team_stats %}
 <script>
-// Goals Chart
+Chart.defaults.color       = '#6b7280';
+Chart.defaults.borderColor = 'rgba(255,255,255,0.06)';
+Chart.defaults.font.family = "'DM Mono', monospace";
+Chart.defaults.font.size   = 10;
+
+const gridOpts = { color: 'rgba(255,255,255,0.05)', drawBorder: false };
+const tickOpts = { color: '#6b7280', font: { family: "'DM Mono', monospace", size: 10 } };
+const tooltipOpts = {
+  backgroundColor: '#181c23',
+  borderColor: 'rgba(255,255,255,0.1)',
+  borderWidth: 1,
+  titleColor: '#e8eaf0',
+  bodyColor: '#6b7280',
+  padding: 10,
+  cornerRadius: 6
+};
+
+/* Goals Chart */
 const goalsCtx = document.getElementById('goalsChart').getContext('2d');
+const greenGrad = goalsCtx.createLinearGradient(0, 0, 0, 180);
+greenGrad.addColorStop(0, 'rgba(0,230,118,0.25)');
+greenGrad.addColorStop(1, 'rgba(0,230,118,0)');
+const redGrad = goalsCtx.createLinearGradient(0, 0, 0, 180);
+redGrad.addColorStop(0, 'rgba(255,77,77,0.2)');
+redGrad.addColorStop(1, 'rgba(255,77,77,0)');
+
 new Chart(goalsCtx, {
-    type: 'line',
-    data: {
-        labels: {{ match_dates,tojson }}
-        datasets: [{
-            label: 'Goals Scored',
-            data: {{ goals_scored | tojson }},
-            borderColor: '#10b981',
-            backgroundColor: 'rgba(16, 185, 129, 0.1)',
-            tension: 0.3,
-            fill: true
-        }, {
-            label: 'Goals Conceded',
-            data: {{ goals_conceded | tojson }},
-            borderColor: '#ef4444',
-            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-            tension: 0.3,
-            fill: true
-        }]
+  type: 'line',
+  data: {
+    labels: {{ match_dates | tojson }},
+    datasets: [{
+      label: 'Scored',
+      data: {{ goals_scored | tojson }},
+      borderColor: '#00e676',
+      backgroundColor: greenGrad,
+      borderWidth: 2,
+      tension: 0.4,
+      fill: true,
+      pointRadius: 3,
+      pointBackgroundColor: '#00e676',
+      pointBorderColor: '#0a0c10',
+      pointBorderWidth: 1.5
+    }, {
+      label: 'Conceded',
+      data: {{ goals_conceded | tojson }},
+      borderColor: '#ff4d4d',
+      backgroundColor: redGrad,
+      borderWidth: 2,
+      tension: 0.4,
+      fill: true,
+      pointRadius: 3,
+      pointBackgroundColor: '#ff4d4d',
+      pointBorderColor: '#0a0c10',
+      pointBorderWidth: 1.5
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { labels: { color: '#6b7280', boxWidth: 10, boxHeight: 2, padding: 16 } },
+      tooltip: tooltipOpts
     },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: {
-            mode: 'index',
-            intersect: false,
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    stepSize: 1
-                }
-            }
-        }
+    scales: {
+      x: { grid: gridOpts, ticks: tickOpts },
+      y: { beginAtZero: true, grid: gridOpts, ticks: { ...tickOpts, stepSize: 1 } }
     }
+  }
 });
 
-// Possession Chart
-const possessionCtx = document.getElementById('possessionChart').getContext('2d');
-new Chart(possessionCtx, {
-    type: 'bar',
-    data: {
-        labels: {{ match_dates | tojson }},
-        datasets: [{
-            label: 'Possession %',
-            data: {{ possession | tojson }},
-            backgroundColor: function(context) {
-                const value = context.raw;
-                return value >= 50 ? 'rgba(59, 130, 246, 0.7)' : 'rgba(239, 68, 68, 0.7)';
-            },
-            borderRadius: 4
-        }]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-            y: {
-                beginAtZero: true,
-                max: 100,
-                title: {
-                    display: true,
-                    text: 'Possession %'
-                }
-            }
-        },
-        plugins: {
-            annotation: {
-                annotations: {
-                    line1: {
-                        type: 'line',
-                        yMin: 50,
-                        yMax: 50,
-                        borderColor: 'rgba(0, 0, 0, 0.3)',
-                        borderWidth: 2,
-                        borderDash: [5, 5]
-                    }
-                }
-            }
-        }
+/* Possession Chart */
+const possCtx = document.getElementById('possessionChart').getContext('2d');
+new Chart(possCtx, {
+  type: 'bar',
+  data: {
+    labels: {{ match_dates | tojson }},
+    datasets: [{
+      label: 'Possession %',
+      data: {{ possession | tojson }},
+      backgroundColor: ctx => ctx.raw >= 50 ? 'rgba(77,159,255,0.7)' : 'rgba(255,77,77,0.5)',
+      borderRadius: 3,
+      borderSkipped: false
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false }, tooltip: tooltipOpts },
+    scales: {
+      x: { grid: gridOpts, ticks: tickOpts },
+      y: {
+        beginAtZero: true,
+        max: 100,
+        grid: gridOpts,
+        ticks: { ...tickOpts, callback: v => v + '%' }
+      }
     }
+  }
 });
+
+/* Formation Selection */
+const allPlayers = {
+  goalkeeper: {{ squad.goalkeeper | tojson }},
+  defenders: {{ squad.defenders | tojson }},
+  midfielders: {{ squad.midfielders | tojson }},
+  forwards: {{ squad.forwards | tojson }},
+  substitutes: {{ squad.substitutes | tojson }}
+};
+
+const formations = {
+  '4-3-3': { defenders: 4, midfielders: 3, forwards: 3 },
+  '4-4-2': { defenders: 4, midfielders: 4, forwards: 2 },
+  '3-5-2': { defenders: 3, midfielders: 5, forwards: 2 },
+  '5-4-1': { defenders: 5, midfielders: 4, forwards: 1 },
+  '4-2-3-1': { defenders: 4, midfielders: 5, forwards: 1 },
+  '5-3-2': { defenders: 5, midfielders: 3, forwards: 2 },
+  '4-1-4-1': { defenders: 4, midfielders: 5, forwards: 1 }
+};
+
+function updateFormation() {
+  const selected = document.getElementById('formationSelect').value;
+  const fmt = formations[selected] || { defenders: 4, midfielders: 4, forwards: 2 };
+  
+  // Update badge
+  document.getElementById('formationBadge').textContent = selected;
+  
+  // Get players based on formation
+  const defs = allPlayers.defenders.slice(0, fmt.defenders);
+  const mids = allPlayers.midfielders.slice(0, fmt.midfielders);
+  const fwd = allPlayers.forwards.slice(0, fmt.forwards);
+  
+  // Update pitch display
+  document.getElementById('forwardsRow').innerHTML = fwd.map((p, i) => 
+    `<div class="player-chip"><div class="player-avatar">${p.name[0]}</div><div class="player-chip-name">${p.name}</div>${p.goals > 0 ? `<div class="player-chip-stat">${p.goals}g</div>` : ''}</div>`
+  ).join('');
+  
+  document.getElementById('midfieldersRow').innerHTML = mids.map((p, i) => 
+    `<div class="player-chip"><div class="player-avatar">${p.name[0]}</div><div class="player-chip-name">${p.name}</div>${p.goals > 0 ? `<div class="player-chip-stat">${p.goals}g</div>` : ''}</div>`
+  ).join('');
+  
+  document.getElementById('defendersRow').innerHTML = defs.map((p, i) => 
+    `<div class="player-chip"><div class="player-avatar">${p.name[0]}</div><div class="player-chip-name">${p.name}</div>${p.goals > 0 ? `<div class="player-chip-stat">${p.goals}g</div>` : ''}</div>`
+  ).join('');
+  
+  const gk = allPlayers.goalkeeper;
+  document.getElementById('goalkeeperRow').innerHTML = gk ? 
+    `<div class="player-chip"><div class="player-avatar" style="border-color: var(--amber); background: rgba(255,179,0,0.12);">${gk.name[0]}</div><div class="player-chip-name">${gk.name}</div><div class="player-chip-stat" style="color: var(--amber);">GK</div></div>` : '';
+}
 </script>
 {% endif %}
 {% endblock %}

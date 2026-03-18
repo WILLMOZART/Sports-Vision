@@ -40,19 +40,31 @@ class PredictionService:
                        END as outcome
                 FROM matches
             """).fetchall()
-        return matches
+
+        if not matches:
+            return []
+
+        df = pd.DataFrame(matches, columns=[*cls.FEATURES, "outcome"])
+        return df.to_dict("records")
 
     @classmethod
     def get_training_data(cls):
         matches = cls.get_match_data()
 
-        if len(matches) < Config.MIN_MATCHES_FOR_PREDICTION:
+        if not matches or len(matches) < Config.MIN_MATCHES_FOR_PREDICTION:
             return (
                 None,
                 f"Not enough data (need {Config.MIN_MATCHES_FOR_PREDICTION} matches)",
             )
 
         df = pd.DataFrame(matches)
+
+        if df.empty or not all(col in df.columns for col in cls.FEATURES):
+            return (
+                None,
+                f"Not enough data (need {Config.MIN_MATCHES_FOR_PREDICTION} matches)",
+            )
+
         X = df[cls.FEATURES]
         y = df["outcome"]
 

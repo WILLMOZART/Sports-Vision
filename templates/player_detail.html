@@ -159,8 +159,12 @@
 
 {% block extra_scripts %}
 <script>
-// Fetch player stats data
-fetch('/api/player_stats/{{ player.id }}')
+// Fetch player stats data - send API key in header
+fetch('/api/player_stats/{{ player.id }}', {
+    headers: {
+        'X-API-Key': '{{ api_key }}'
+    }
+})
     .then(response => response.json())
     .then(data => {
         if (data.length > 0) {

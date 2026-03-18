@@ -11,6 +11,13 @@ class Config:
     MAX_CONTENT_LENGTH = int(os.getenv("MAX_CONTENT_LENGTH", 16 * 1024 * 1024))
     ALLOWED_EXTENSIONS = {"csv"}
 
+    # API settings
+    API_KEY = os.getenv("API_KEY", "sportvision-api-key-2024")
+    API_ENABLED = os.getenv("API_ENABLED", "true").lower() == "true"
+
+    # Pagination
+    ITEMS_PER_PAGE = int(os.getenv("ITEMS_PER_PAGE", 20))
+
     # ML Model settings
     MIN_MATCHES_FOR_PREDICTION = int(os.getenv("MIN_MATCHES_FOR_PREDICTION", 10))
     MODEL_PATH = os.getenv("MODEL_PATH", "data/model.pkl")

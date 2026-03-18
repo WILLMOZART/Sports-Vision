@@ -4,12 +4,14 @@
 
 {% block extra_head %}
 <style>
+    :root {
+        --font-display: 'Syne', sans-serif;
+        --font-body: 'Inter', sans-serif;
+        --font-mono: 'DM Mono', monospace;
+    }
     /* Main content area with background image */
     .main-content {
         background-image: url("{{ url_for('static', filename='images/player-bg.jpg') }}");
-        /* If you want to use the same stadium image, use this instead:
-        background-image: url("{{ url_for('static', filename='images/stadium-bg.jpg') }}"); 
-        */
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
@@ -26,7 +28,7 @@
         left: 0;
         right: 0;
         bottom: 0;
-        background: rgba(0, 0, 0, 0.65); /* Adjust opacity as needed */
+        background: rgba(0, 0, 0, 0.65);
         z-index: 0;
         pointer-events: none;
     }
@@ -72,7 +74,7 @@
     
     .player-card:hover {
         transform: translateY(-8px);
-        border-color: rgba(255, 215, 0, 0.4);
+        border-color: rgba(25, 226, 92, 0.4)
         box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(255, 215, 0, 0.2);
     }
     
@@ -88,7 +90,7 @@
     .player-avatar {
         width: 60px;
         height: 60px;
-        background: linear-gradient(135deg, #FFD700, #FFA500);
+        background: linear-gradient(135deg, #0bd927, #FFA500);
         border-radius: 50%;
         display: flex;
         align-items: center;

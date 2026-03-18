@@ -22,9 +22,14 @@
         <div class="admin-section">
             <div class="section-header">
                 <h2>&#128100; Manage Players</h2>
-                <button class="btn btn-primary" onclick="openModal('addPlayerModal')">
-                    <span>&#10133;</span> Add Player
-                </button>
+                <div>
+                    <button class="btn btn-danger" onclick="confirmDeleteAll('players')" style="margin-right: 10px;">
+                        <span>&#128465;</span> Delete All
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('addPlayerModal')">
+                        <span>&#10133;</span> Add Player
+                    </button>
+                </div>
             </div>
 
             {% if players %}
@@ -81,9 +86,14 @@
         <div class="admin-section">
             <div class="section-header">
                 <h2>&#9917; Manage Matches</h2>
-                <button class="btn btn-primary" onclick="openModal('addMatchModal')">
-                    <span>&#10133;</span> Add Match
-                </button>
+                <div>
+                    <button class="btn btn-danger" onclick="confirmDeleteAll('matches')" style="margin-right: 10px;">
+                        <span>&#128465;</span> Delete All
+                    </button>
+                    <button class="btn btn-primary" onclick="openModal('addMatchModal')">
+                        <span>&#10133;</span> Add Match
+                    </button>
+                </div>
             </div>
 
             {% if matches %}
@@ -479,5 +489,24 @@ document.addEventListener('DOMContentLoaded', function() {
         dateInput.valueAsDate = new Date();
     }
 });
+
+// Delete all functionality
+function confirmDeleteAll(type) {
+    if (confirm('Are you sure you want to delete ALL ' + type + '? This action cannot be undone!')) {
+        if (type === 'players') {
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/admin/delete_all_players';
+            document.body.appendChild(form);
+            form.submit();
+        } else if (type === 'matches') {
+            var form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '/admin/delete_all_matches';
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+}
 </script>
 {% endblock %}

@@ -1,10 +1,30 @@
-from flask import Blueprint, jsonify, request
+from functools import wraps
+from flask import Blueprint, jsonify, request, current_app
 from models import db
 
 api = Blueprint("api", __name__, url_prefix="/api")
 
 
+def require_api_key(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not current_app.config.get("API_ENABLED", True):
+            return jsonify({"error": "API is disabled"}), 503
+
+        api_key = request.headers.get("X-API-Key")
+        if not api_key:
+            return jsonify({"error": "Missing API key. Add 'X-API-Key' header"}), 401
+
+        if api_key != current_app.config.get("API_KEY"):
+            return jsonify({"error": "Invalid API key"}), 403
+
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
 @api.route("/player_stats/<int:player_id>")
+@require_api_key
 def player_stats(player_id):
     with db.get_connection() as conn:
         stats = conn.execute(
@@ -21,6 +41,7 @@ def player_stats(player_id):
 
 
 @api.route("/team_performance")
+@require_api_key
 def team_performance():
     with db.get_connection() as conn:
         matches = conn.execute("""
@@ -33,6 +54,7 @@ def team_performance():
 
 
 @api.route("/players")
+@require_api_key
 def players():
     with db.get_connection() as conn:
         players_list = conn.execute("""
@@ -50,6 +72,7 @@ def players():
 
 
 @api.route("/matches")
+@require_api_key
 def matches():
     with db.get_connection() as conn:
         matches = conn.execute("""
@@ -60,6 +83,7 @@ def matches():
 
 
 @api.route("/matches", methods=["POST"])
+@require_api_key
 def create_match():
     data = request.get_json()
 
@@ -106,6 +130,7 @@ def create_match():
 
 
 @api.route("/players", methods=["POST"])
+@require_api_key
 def create_player():
     data = request.get_json()
 
@@ -131,3 +156,21 @@ def create_player():
         player_id = cursor.lastrowid
 
     return jsonify({"id": player_id}), 201
+
+
+@api.route("/info")
+def api_info():
+    """Get API information"""
+    return jsonify(
+        {
+            "name": "SportVision Analytics API",
+            "version": "1.0.0",
+            "endpoints": [
+                "/api/players",
+                "/api/matches",
+                "/api/player_stats/<id>",
+                "/api/team_performance",
+            ],
+            "authentication": "X-API-Key header required",
+        }
+    )

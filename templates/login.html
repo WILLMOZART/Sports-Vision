@@ -6,8 +6,14 @@
     <title>Login - SportVision Analytics</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --font-display: 'Syne', sans-serif;
+            --font-body: 'Inter', sans-serif;
+            --font-mono: 'DM Mono', monospace;
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -15,55 +21,56 @@
         }
 
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-body);
             min-height: 100vh;
             display: flex;
-            overflow: hidden;
-            background: #0a0a0a;
+            /* Allow scrolling on small screens instead of clipping */
+            overflow-x: hidden;
+            overflow-y: auto;
+            background: #0b0e14;
         }
 
-        /* Dynamic Background with Animated Gradient Mesh */
+        /* ── Background ─────────────────────────────────────────── */
         .bg-container {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             z-index: 0;
-            background: 
+            background:
                 radial-gradient(ellipse at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
                 radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%),
                 radial-gradient(ellipse at 40% 40%, rgba(236, 72, 153, 0.1) 0%, transparent 40%),
                 linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
         }
 
-        /* Animated Grid Overlay */
+        /* Grid only on screens wide enough to render it cleanly */
         .grid-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image: 
+            inset: 0;
+            background-image:
                 linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
             background-size: 50px 50px;
             z-index: 1;
-            animation: gridMove 20s linear infinite;
+        }
+
+        @media (min-width: 768px) {
+            .grid-overlay {
+                animation: gridMove 20s linear infinite;
+            }
         }
 
         @keyframes gridMove {
-            0% { transform: perspective(500px) rotateX(60deg) translateY(0); }
+            0%   { transform: perspective(500px) rotateX(60deg) translateY(0); }
             100% { transform: perspective(500px) rotateX(60deg) translateY(50px); }
         }
 
-        /* Floating Particles */
+        /* Particles – contained so they never cause horizontal scroll */
         .particles {
             position: fixed;
-            width: 100%;
-            height: 100%;
+            inset: 0;
             z-index: 2;
             overflow: hidden;
+            pointer-events: none;
         }
 
         .particle {
@@ -78,21 +85,29 @@
 
         @keyframes float {
             0%, 100% { transform: translateY(100vh) scale(0); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(-100vh) scale(1.5); opacity: 0; }
+            10%       { opacity: 1; }
+            90%       { opacity: 1; }
+            100%      { transform: translateY(-100vh) scale(1.5); opacity: 0; }
         }
 
-        /* Left Panel - Branding */
+        /* ── Layout ─────────────────────────────────────────────── */
+
+        /* Brand panel visible from 900 px up */
         .brand-panel {
             flex: 1;
-            display: flex;
+            display: none;           /* hidden by default (mobile-first) */
             flex-direction: column;
             justify-content: center;
             padding: 60px;
             position: relative;
             z-index: 10;
             color: white;
+        }
+
+        @media (min-width: 900px) {
+            .brand-panel {
+                display: flex;
+            }
         }
 
         .brand-content {
@@ -104,7 +119,7 @@
             align-items: center;
             gap: 12px;
             margin-bottom: 40px;
-            font-family: 'Space Grotesk', sans-serif;
+            font-family: var(--font-display);
             font-size: 28px;
             font-weight: 700;
         }
@@ -117,25 +132,23 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            position: relative;
             overflow: hidden;
+            flex-shrink: 0;
         }
 
-        .logo-icon::before {
-            content: '◆';
-            font-size: 24px;
-            color: white;
+        .logo-icon svg {
             animation: pulse 2s ease-in-out infinite;
         }
 
         @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.1); opacity: 0.8; }
+            0%, 100% { transform: scale(1);   opacity: 1; }
+            50%       { transform: scale(1.1); opacity: 0.8; }
         }
 
+        /* Fluid headline: clamp between 36px (mobile) and 64px (desktop) */
         .headline {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 64px;
+            font-family: var(--font-display);
+            font-size: clamp(36px, 4.5vw, 64px);
             font-weight: 700;
             line-height: 1.1;
             margin-bottom: 24px;
@@ -146,7 +159,7 @@
         }
 
         .subheadline {
-            font-size: 20px;
+            font-size: clamp(15px, 1.4vw, 20px);
             color: #94a3b8;
             line-height: 1.6;
             margin-bottom: 40px;
@@ -176,30 +189,68 @@
             justify-content: center;
             color: #3b82f6;
             font-size: 14px;
+            flex-shrink: 0;
         }
 
-        /* Right Panel - Auth Form */
+        /* ── Auth panel ─────────────────────────────────────────── */
+
+        /*
+         * Mobile  : full width, centred, scrollable
+         * Tablet  : 420px fixed, centred
+         * Desktop : 480px pinned to right
+         */
         .auth-panel {
-            width: 480px;
+            width: 100%;
             display: flex;
-            align-items: center;
+            align-items: flex-start;   /* allow card to start at top on small screens */
             justify-content: center;
-            padding: 40px;
+            padding: 24px 16px;
             position: relative;
             z-index: 10;
         }
 
+        @media (min-width: 480px) {
+            .auth-panel {
+                align-items: center;
+                padding: 40px 24px;
+            }
+        }
+
+        @media (min-width: 900px) {
+            .auth-panel {
+                width: 480px;
+                flex-shrink: 0;
+                padding: 40px;
+                align-items: center;
+            }
+        }
+
         .auth-card {
             width: 100%;
+            max-width: 400px;
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(20px);
-            border-radius: 24px;
-            padding: 48px;
-            box-shadow: 
+            border-radius: 20px;
+            padding: 36px 28px;
+            box-shadow:
                 0 25px 50px -12px rgba(0, 0, 0, 0.5),
                 0 0 0 1px rgba(255, 255, 255, 0.1);
             position: relative;
             overflow: hidden;
+        }
+
+        @media (min-width: 480px) {
+            .auth-card {
+                border-radius: 24px;
+                padding: 48px;
+                max-width: 420px;
+            }
+        }
+
+        @media (min-width: 900px) {
+            .auth-card {
+                max-width: 100%;
+            }
         }
 
         .auth-card::before {
@@ -212,13 +263,41 @@
             background: linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899);
         }
 
+        /* Mobile logo shown only when brand panel is hidden */
+        .mobile-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-family: var(--font-display);
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 28px;
+        }
+
+        .mobile-logo .logo-icon {
+            width: 36px;
+            height: 36px;
+        }
+
+        .mobile-logo .logo-icon::before {
+            font-size: 18px;
+        }
+
+        @media (min-width: 900px) {
+            .mobile-logo {
+                display: none;
+            }
+        }
+
+        /* ── Form ───────────────────────────────────────────────── */
         .auth-header {
-            margin-bottom: 32px;
+            margin-bottom: 28px;
         }
 
         .auth-header h2 {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 32px;
+            font-family: var(--font-display);
+            font-size: clamp(24px, 3vw, 32px);
             font-weight: 700;
             color: #0f172a;
             margin-bottom: 8px;
@@ -230,7 +309,7 @@
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .form-group label {
@@ -247,13 +326,15 @@
 
         .input-wrapper input {
             width: 100%;
-            padding: 14px 16px 14px 44px;
+            padding: 13px 16px 13px 44px;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
             font-size: 15px;
-            font-family: 'Inter', sans-serif;
+            font-family: var(--font-body);
             transition: all 0.3s ease;
             background: #f8fafc;
+            /* Prevent iOS zoom on focus (font-size must be ≥ 16px on iOS) */
+            font-size: max(15px, 1rem);
         }
 
         .input-wrapper input:focus {
@@ -265,23 +346,33 @@
 
         .input-icon {
             position: absolute;
-            left: 16px;
+            left: 14px;
             top: 50%;
             transform: translateY(-50%);
-            color: #94a3b8;
-            font-size: 18px;
-            transition: color 0.3s;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .input-wrapper input:focus + .input-icon {
-            color: #3b82f6;
+        .input-icon svg {
+            width: 16px;
+            height: 16px;
+            stroke: #94a3b8;
+            transition: stroke 0.3s;
+        }
+
+        .input-wrapper input:focus ~ .input-icon svg {
+            stroke: #3b82f6;
         }
 
         .form-options {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 22px;
             font-size: 14px;
         }
 
@@ -298,6 +389,7 @@
             height: 18px;
             accent-color: #3b82f6;
             cursor: pointer;
+            flex-shrink: 0;
         }
 
         .forgot-link {
@@ -313,7 +405,7 @@
 
         .btn-primary {
             width: 100%;
-            padding: 16px;
+            padding: 15px;
             background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
             color: white;
             border: none;
@@ -324,6 +416,8 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            /* Comfortable tap target */
+            min-height: 48px;
         }
 
         .btn-primary::before {
@@ -346,10 +440,14 @@
             box-shadow: 0 10px 30px -10px rgba(59, 130, 246, 0.5);
         }
 
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
         .divider {
             display: flex;
             align-items: center;
-            margin: 24px 0;
+            margin: 22px 0;
             color: #94a3b8;
             font-size: 14px;
         }
@@ -364,12 +462,13 @@
 
         .divider span {
             padding: 0 16px;
+            white-space: nowrap;
         }
 
         .social-login {
             display: flex;
             gap: 12px;
-            margin-bottom: 24px;
+            margin-bottom: 22px;
         }
 
         .social-btn {
@@ -384,6 +483,8 @@
             align-items: center;
             justify-content: center;
             font-size: 18px;
+            /* Comfortable tap target */
+            min-height: 44px;
         }
 
         .social-btn:hover {
@@ -420,19 +521,32 @@
             width: 100%;
         }
 
-        /* Flash Messages */
+        /* ── Flash Messages ──────────────────────────────────────── */
         .flash-container {
             position: fixed;
-            top: 24px;
-            right: 24px;
+            top: 16px;
+            /* Fluid: sits 16px from each side on mobile, max 380px wide */
+            left: 50%;
+            transform: translateX(-50%);
+            width: calc(100% - 32px);
+            max-width: 380px;
             z-index: 100;
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 10px;
+        }
+
+        @media (min-width: 640px) {
+            .flash-container {
+                left: auto;
+                right: 24px;
+                transform: none;
+                top: 24px;
+            }
         }
 
         .flash {
-            padding: 16px 24px;
+            padding: 14px 20px;
             border-radius: 12px;
             font-size: 14px;
             font-weight: 500;
@@ -441,48 +555,20 @@
         }
 
         @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+            from { transform: translateY(-20px); opacity: 0; }
+            to   { transform: translateY(0);     opacity: 1; }
         }
 
-        .flash-success {
-            background: rgba(34, 197, 94, 0.9);
-            color: white;
-        }
-
-        .flash-error {
-            background: rgba(239, 68, 68, 0.9);
-            color: white;
-        }
-
-        .flash-warning {
-            background: rgba(245, 158, 11, 0.9);
-            color: white;
-        }
-
-        /* Responsive */
-        @media (max-width: 1024px) {
-            .brand-panel {
-                display: none;
-            }
-            .auth-panel {
-                width: 100%;
-                max-width: 480px;
-                margin: 0 auto;
+        @media (min-width: 640px) {
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to   { transform: translateX(0);    opacity: 1; }
             }
         }
 
-        @media (max-width: 640px) {
-            .auth-card {
-                padding: 32px 24px;
-                border-radius: 0;
-                min-height: 100vh;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            }
-            .headline { font-size: 36px; }
-        }
+        .flash-success { background: rgba(34, 197, 94, 0.9);  color: white; }
+        .flash-error   { background: rgba(239, 68, 68, 0.9);  color: white; }
+        .flash-warning { background: rgba(245, 158, 11, 0.9); color: white; }
     </style>
 </head>
 <body>
@@ -501,27 +587,35 @@
     <div class="grid-overlay"></div>
     <div class="particles" id="particles"></div>
 
-    <!-- Brand Panel -->
+    <!-- Brand Panel (visible ≥ 900px) -->
     <div class="brand-panel">
         <div class="brand-content">
             <div class="logo">
-                <div class="logo-icon"></div>
+                <div class="logo-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                </div>
                 SportVision
             </div>
             <h1 class="headline">Analytics that move with the game</h1>
             <p class="subheadline">Professional-grade sports analytics platform. Real-time data visualization, performance tracking, and strategic insights for teams that demand excellence.</p>
-            
+
             <div class="feature-list">
                 <div class="feature-item">
-                    <div class="feature-icon">⚡</div>
+                    <div class="feature-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    </div>
                     <span>Real-time performance metrics</span>
                 </div>
                 <div class="feature-item">
-                    <div class="feature-icon">📊</div>
+                    <div class="feature-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                    </div>
                     <span>Advanced statistical modeling</span>
                 </div>
                 <div class="feature-item">
-                    <div class="feature-icon">🎯</div>
+                    <div class="feature-icon">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+                    </div>
                     <span>Predictive analytics engine</span>
                 </div>
             </div>
@@ -531,25 +625,37 @@
     <!-- Auth Panel -->
     <div class="auth-panel">
         <div class="auth-card">
+
+            <div class="mobile-logo">
+                <div class="logo-icon">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                </div>
+                SportVision
+            </div>
+
             <div class="auth-header">
                 <h2>Welcome back</h2>
                 <p>Sign in to access your analytics dashboard</p>
             </div>
-            
+
             <form method="POST">
                 <div class="form-group">
                     <label for="username">Username</label>
                     <div class="input-wrapper">
-                        <input type="text" id="username" name="username" placeholder="Enter your username" required>
-                        <span class="input-icon">👤</span>
+                        <input type="text" id="username" name="username" placeholder="Enter your username" required autocomplete="username">
+                        <span class="input-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                        </span>
                     </div>
                 </div>
-                
+
                 <div class="form-group">
                     <label for="password">Password</label>
                     <div class="input-wrapper">
-                        <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                        <span class="input-icon">🔒</span>
+                        <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+                        <span class="input-icon">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                        </span>
                     </div>
                 </div>
 
@@ -560,7 +666,7 @@
                     </label>
                     <a href="#" class="forgot-link">Forgot password?</a>
                 </div>
-                
+
                 <button type="submit" class="btn-primary">Sign In</button>
             </form>
 
@@ -569,11 +675,20 @@
             </div>
 
             <div class="social-login">
-                <button class="social-btn" type="button">G</button>
-                <button class="social-btn" type="button">⚡</button>
-                <button class="social-btn" type="button">🏢</button>
+                <!-- Google -->
+                <button class="social-btn" type="button" aria-label="Sign in with Google">
+                    <svg width="18" height="18" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+                </button>
+                <!-- GitHub -->
+                <button class="social-btn" type="button" aria-label="Sign in with GitHub">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.844a9.59 9.59 0 0 1 2.504.337c1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.02 10.02 0 0 0 22 12.017C22 6.484 17.522 2 12 2z"/></svg>
+                </button>
+                <!-- Microsoft / SSO -->
+                <button class="social-btn" type="button" aria-label="Sign in with Microsoft">
+                    <svg width="18" height="18" viewBox="0 0 24 24"><rect x="1" y="1" width="10" height="10" fill="#F25022"/><rect x="13" y="1" width="10" height="10" fill="#7FBA00"/><rect x="1" y="13" width="10" height="10" fill="#00A4EF"/><rect x="13" y="13" width="10" height="10" fill="#FFB900"/></svg>
+                </button>
             </div>
-            
+
             <div class="auth-footer">
                 Don't have an account? <a href="{{ url_for('auth.register') }}">Create account</a>
             </div>
@@ -581,23 +696,27 @@
     </div>
 
     <script>
-        // Generate floating particles
-        const particlesContainer = document.getElementById('particles');
-        for (let i = 0; i < 20; i++) {
-            const particle = document.createElement('div');
-            particle.className = 'particle';
-            particle.style.left = Math.random() * 100 + '%';
-            particle.style.animationDelay = Math.random() * 15 + 's';
-            particle.style.animationDuration = (15 + Math.random() * 10) + 's';
-            particlesContainer.appendChild(particle);
+        // Fewer particles on small screens for performance
+        const isMobile = window.innerWidth < 768;
+        const count = isMobile ? 8 : 20;
+        const container = document.getElementById('particles');
+
+        for (let i = 0; i < count; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            // Keep particles within 0–95% to avoid triggering horizontal scroll
+            p.style.left = (Math.random() * 95) + '%';
+            p.style.animationDelay = (Math.random() * 15) + 's';
+            p.style.animationDuration = (15 + Math.random() * 10) + 's';
+            container.appendChild(p);
         }
 
-        // Auto-hide flash messages
+        // Auto-hide flash messages after 5 s
         setTimeout(() => {
-            document.querySelectorAll('.flash').forEach(flash => {
-                flash.style.opacity = '0';
-                flash.style.transform = 'translateX(100%)';
-                flash.style.transition = 'all 0.3s ease';
+            document.querySelectorAll('.flash').forEach(el => {
+                el.style.transition = 'all 0.3s ease';
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(-10px)';
             });
         }, 5000);
     </script>

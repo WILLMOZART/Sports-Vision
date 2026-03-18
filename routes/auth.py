@@ -94,3 +94,61 @@ def logout():
     session.clear()
     flash("You have been logged out", "info")
     return redirect(url_for("auth.login"))
+
+
+@auth.route("/profile", methods=["GET", "POST"])
+@login_required
+def profile():
+    if request.method == "POST":
+        action = request.form.get("action")
+
+        if action == "change_password":
+            current_password = request.form.get("current_password")
+            new_password = request.form.get("new_password")
+            confirm_password = request.form.get("confirm_password")
+
+            with db.get_connection() as conn:
+                user = conn.execute(
+                    "SELECT password_hash FROM users WHERE id = ?",
+                    (session["user_id"],),
+                ).fetchone()
+
+                if not check_password_hash(user["password_hash"], current_password):
+                    flash("Current password is incorrect", "error")
+                elif new_password != confirm_password:
+                    flash("New passwords do not match", "error")
+                elif len(new_password) < 6:
+                    flash("Password must be at least 6 characters", "error")
+                else:
+                    new_hash = generate_password_hash(new_password)
+                    conn.execute(
+                        "UPDATE users SET password_hash = ? WHERE id = ?",
+                        (new_hash, session["user_id"]),
+                    )
+                    conn.commit()
+                    flash("Password changed successfully!", "success")
+
+        elif action == "update_profile":
+            email = request.form.get("email")
+
+            if not validate_email(email):
+                flash("Invalid email format", "error")
+            else:
+                try:
+                    with db.get_connection() as conn:
+                        conn.execute(
+                            "UPDATE users SET email = ? WHERE id = ?",
+                            (email, session["user_id"]),
+                        )
+                        conn.commit()
+                    flash("Profile updated successfully!", "success")
+                except:
+                    flash("Email already in use", "error")
+
+    with db.get_connection() as conn:
+        user = conn.execute(
+            "SELECT username, email, role, created_at FROM users WHERE id = ?",
+            (session["user_id"],),
+        ).fetchone()
+
+    return render_template("profile.html", user=user)
