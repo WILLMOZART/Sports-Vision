@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Register - SportVision</title>
+    <title>Register - Sports-Vision</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
@@ -12,39 +12,45 @@
             --font-display: 'Syne', sans-serif;
             --font-body: 'Inter', sans-serif;
             --font-mono: 'DM Mono', monospace;
+            --bg: #0a0c10;
+            --surface: #111318;
+            --surface2: #181c23;
+            --text: #e8eaf0;
+            --muted: #6b7280;
+            --green: #00e676;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: var(--font-body); min-height: 100vh; display: flex; overflow: hidden; background: #0b0e14; }
         
-        .bg-container { position: fixed; inset: 0; z-index: 0; background: radial-gradient(ellipse at 20% 80%, rgba(59, 130, 246, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 80% 20%, rgba(139, 92, 246, 0.15) 0%, transparent 50%), radial-gradient(ellipse at 40% 40%, rgba(236, 72, 153, 0.1) 0%, transparent 40%), linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%); }
+        .bg-container { position: fixed; inset: 0; z-index: 0; background: rgba(10, 14, 20, 0.5); }
         .grid-overlay { position: fixed; inset: 0; background-image: linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px); background-size: 50px 50px; z-index: 1; }
         
         .brand-panel { flex: 1; display: none; flex-direction: column; justify-content: center; align-items: center; padding: 40px; position: relative; z-index: 10; }
         .brand-content { text-align: center; max-width: 480px; }
         .brand-logo { display: flex; align-items: center; gap: 16px; margin-bottom: 40px; justify-content: center; }
-        .brand-logo-icon { width: 64px; height: 64px; background: linear-gradient(135deg, #00e676, #00c164); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
-        .brand-logo-text { font-family: var(--font-display); font-size: 36px; font-weight: 800; color: #fff; }
-        .brand-title { font-family: var(--font-display); font-size: 42px; font-weight: 700; color: #fff; line-height: 1.1; margin-bottom: 20px; }
-        .brand-desc { font-size: 16px; color: rgba(255,255,255,0.6); line-height: 1.6; }
+        .brand-logo-icon { width: 64px; height: 64px; background: linear-gradient(135deg, var(--green), #00c164); border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 32px; }
+        .brand-logo-text { font-family: var(--font-display); font-size: 36px; font-weight: 800; color: var(--text); }
+        .brand-title { font-family: var(--font-display); font-size: 42px; font-weight: 700; color: var(--text); line-height: 1.1; margin-bottom: 20px; }
+        .brand-desc { font-size: 16px; color: var(--muted); line-height: 1.6; }
         
         .form-panel { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px; position: relative; z-index: 10; }
-        .form-container { width: 100%; max-width: 420px; }
+        .form-container { width: 100%; max-width: 420px; background: var(--surface); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 36px; }
         .form-header { margin-bottom: 32px; }
-        .form-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 8px; }
-        .form-subtitle { color: rgba(255,255,255,0.5); font-size: 14px; }
+        .form-title { font-family: var(--font-display); font-size: 28px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
+        .form-subtitle { color: var(--muted); font-size: 14px; }
         
         .form-group { margin-bottom: 20px; }
-        .form-label { display: block; font-size: 13px; font-weight: 500; color: rgba(255,255,255,0.8); margin-bottom: 8px; }
-        .form-input { width: 100%; padding: 14px 16px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; font-size: 14px; font-family: var(--font-body); transition: all 0.2s; }
-        .form-input:focus { outline: none; border-color: #00e676; background: rgba(255,255,255,0.08); }
-        .form-input::placeholder { color: rgba(255,255,255,0.3); }
+        .form-label { display: block; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 8px; opacity: 0.8; }
+        .form-input { width: 100%; padding: 14px 16px; background: var(--surface2); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: var(--text); font-size: 14px; font-family: var(--font-body); transition: all 0.2s; }
+        .form-input:focus { outline: none; border-color: var(--green); background: #1a1f28; }
+        .form-input::placeholder { color: var(--muted); }
         
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        .btn-submit { width: 100%; padding: 16px; background: linear-gradient(135deg, #00e676, #00c164); border: none; border-radius: 10px; color: #000; font-family: var(--font-display); font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
-        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 230, 118, 0.3); }
+        .btn-submit { width: 100%; padding: 16px; background: var(--green); border: none; border-radius: 10px; color: #000; font-family: var(--font-display); font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 230, 118, 0.3); background: #00c164; }
         
-        .form-footer { margin-top: 24px; text-align: center; color: rgba(255,255,255,0.5); font-size: 14px; }
-        .form-footer a { color: #00e676; text-decoration: none; font-weight: 500; }
+        .form-footer { margin-top: 24px; text-align: center; color: var(--muted); font-size: 14px; }
+        .form-footer a { color: var(--green); text-decoration: none; font-weight: 500; }
         .form-footer a:hover { text-decoration: underline; }
         
         @media (min-width: 900px) {
@@ -61,7 +67,7 @@
         <div class="brand-content">
             <div class="brand-logo">
                 <div class="brand-logo-icon">⚽</div>
-                <span class="brand-logo-text">SportVision</span>
+                <span class="brand-logo-text">Sports-Vision</span>
             </div>
             <h1 class="brand-title">Track. Analyze. Predict.</h1>
             <p class="brand-desc">Advanced sports analytics powered by machine learning. Make data-driven decisions for your team.</p>
@@ -72,7 +78,7 @@
         <div class="form-container">
             <div class="form-header">
                 <h2 class="form-title">Create Account</h2>
-                <p class="form-subtitle">Join SportVision Analytics today</p>
+                <p class="form-subtitle">Join Sports-Vision Analytics today</p>
             </div>
             
             <form method="POST">

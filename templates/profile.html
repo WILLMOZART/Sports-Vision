@@ -3,105 +3,256 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Profile - SportVision Analytics</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <title>Profile — Sports-Vision</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
     <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
         :root {
+            --bg:       #0a0c10;
+            --surface:  #111318;
+            --surface2: #181c23;
+            --border:   rgba(255,255,255,0.07);
+            --border2:  rgba(255,255,255,0.12);
+            --text:     #e8eaf0;
+            --muted:    #6b7280;
+            --faint:    #2a2f3a;
+            --green:    #00e676;
+            --green-d:  #00c164;
+            --amber:    #ffb300;
+            --red:      #ff4d4d;
+            --blue:     #4d9fff;
             --font-display: 'Syne', sans-serif;
-            --font-body: 'Inter', sans-serif;
-            --font-mono: 'DM Mono', monospace;
+            --font-body:    'Inter', sans-serif;
+            --font-mono:    'DM Mono', monospace;
+            --r-sm: 6px;
+            --r-md: 10px;
+            --r-lg: 14px;
         }
-        .profile-container {
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 30px;
-            background: var(--bg-card);
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: var(--font-body);
+            font-size: 14px;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: url("{{ url_for('static', filename='images/stadium.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            opacity: 0.25;
+            z-index: -1;
+        }
+
+        .sv-card {
+            background: var(--surface);
             border: 1px solid var(--border);
+            border-radius: var(--r-lg);
+            width: 100%;
+            max-width: 500px;
+            overflow: hidden;
         }
-        .profile-header {
+
+        .sv-card-hdr {
+            padding: 24px;
+            border-bottom: 1px solid var(--border);
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #e2e8f0;
         }
-        .profile-header h1 {
-            color: #1e293b;
-            margin-bottom: 5px;
+
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--green), var(--amber));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 32px;
+            color: #000;
+            margin: 0 auto 16px;
         }
-        .profile-header .role {
+
+        .profile-name {
+            font-family: var(--font-display);
+            font-size: 24px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 8px;
+        }
+
+        .profile-role {
             display: inline-block;
             padding: 4px 12px;
-            background: #3b82f6;
-            color: white;
+            background: rgba(77,159,255,0.15);
+            color: var(--blue);
+            border: 1px solid rgba(77,159,255,0.3);
             border-radius: 20px;
-            font-size: 12px;
+            font-family: var(--font-mono);
+            font-size: 11px;
             text-transform: uppercase;
+            letter-spacing: 0.05em;
         }
-        .profile-header .role.admin {
-            background: #ef4444;
+
+        .profile-role.admin {
+            background: rgba(255,77,77,0.15);
+            color: var(--red);
+            border-color: rgba(255,77,77,0.3);
         }
-        .form-section {
-            margin-bottom: 30px;
+
+        .profile-joined {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 8px;
         }
-        .form-section h3 {
-            color: #475569;
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e2e8f0;
+
+        .sv-card-body {
+            padding: 24px;
         }
+
+        .sv-section-label {
+            font-family: var(--font-mono);
+            font-size: 10px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sv-section-label::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border);
+        }
+
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
+
         .form-group label {
             display: block;
-            margin-bottom: 5px;
-            color: #475569;
-            font-weight: 500;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 6px;
+            font-family: var(--font-mono);
         }
+
         .form-group input {
             width: 100%;
-            padding: 12px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
+            padding: 12px 14px;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: var(--r-md);
+            color: var(--text);
+            font-family: var(--font-body);
             font-size: 14px;
-            box-sizing: border-box;
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
+
         .form-group input:focus {
             outline: none;
-            border-color: #3b82f6;
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(0,230,118,0.1);
         }
-        .btn {
-            padding: 12px 24px;
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 500;
+
+        .sv-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 12px 20px;
+            border-radius: var(--r-md);
+            font-family: var(--font-display);
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: all 0.15s;
+            width: 100%;
+            border: none;
         }
-        .btn:hover {
-            background: #2563eb;
+
+        .sv-btn-primary {
+            background: var(--green);
+            color: #000;
         }
-        .info-item {
+
+        .sv-btn-primary:hover {
+            background: var(--green-d);
+        }
+
+        .form-section {
+            margin-bottom: 28px;
+        }
+
+        .info-grid {
+            display: grid;
+            gap: 1px;
+            background: var(--border);
+            border-radius: var(--r-md);
+            overflow: hidden;
+        }
+
+        .info-row {
             display: flex;
             justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #f1f5f9;
+            padding: 14px 16px;
+            background: var(--surface2);
         }
-        .info-item:last-child {
-            border-bottom: none;
-        }
+
         .info-label {
-            color: #64748b;
+            font-size: 13px;
+            color: var(--muted);
         }
+
         .info-value {
-            color: #1e293b;
+            font-size: 13px;
+            color: #fff;
             font-weight: 500;
+        }
+
+        .flash-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .flash {
+            padding: 12px 20px;
+            border-radius: var(--r-md);
+            margin-bottom: 10px;
+            font-size: 13px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .flash-success { background: rgba(0,230,118,0.15); color: var(--green); border: 1px solid rgba(0,230,118,0.3); }
+        .flash-error { background: rgba(255,77,77,0.15); color: var(--red); border: 1px solid rgba(255,77,77,0.3); }
+        .flash-info { background: rgba(77,159,255,0.15); color: var(--blue); border: 1px solid rgba(77,159,255,0.3); }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
     </style>
 </head>
@@ -116,58 +267,63 @@
         {% endif %}
     {% endwith %}
 
-    <div class="profile-container">
-        <div class="profile-header">
-            <h1>{{ user.username }}</h1>
-            <span class="role {% if user.role == 'admin' %}admin{% endif %}">{{ user.role }}</span>
-            <p style="color: #64748b; margin-top: 10px;">Member since {{ user.created_at[:10] }}</p>
+    <div class="sv-card">
+        <div class="sv-card-hdr">
+            <div class="profile-avatar">{{ user.username[0]|upper }}</div>
+            <div class="profile-name">{{ user.username }}</div>
+            <span class="profile-role {% if user.role == 'admin' %}admin{% endif %}">{{ user.role }}</span>
+            <div class="profile-joined">Member since {{ user.created_at[:10] }}</div>
         </div>
 
-        <form method="POST">
-            <div class="form-section">
-                <h3>Update Profile</h3>
-                <input type="hidden" name="action" value="update_profile">
-                <div class="form-group">
-                    <label for="email">Email</label>
-                    <input type="email" id="email" name="email" value="{{ user.email }}" required>
+        <div class="sv-card-body">
+            <form method="POST">
+                <div class="form-section">
+                    <div class="sv-section-label">Update Profile</div>
+                    <input type="hidden" name="action" value="update_profile">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" required>
+                    </div>
+                    <button type="submit" class="sv-btn sv-btn-primary">Update Profile</button>
                 </div>
-                <button type="submit" class="btn">Update Profile</button>
-            </div>
-        </form>
+            </form>
 
-        <form method="POST">
-            <div class="form-section">
-                <h3>Change Password</h3>
-                <input type="hidden" name="action" value="change_password">
-                <div class="form-group">
-                    <label for="current_password">Current Password</label>
-                    <input type="password" id="current_password" name="current_password" required>
+            <form method="POST">
+                <div class="form-section">
+                    <div class="sv-section-label">Change Password</div>
+                    <input type="hidden" name="action" value="change_password">
+                    <div class="form-group">
+                        <label for="current_password">Current Password</label>
+                        <input type="password" id="current_password" name="current_password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="new_password">New Password</label>
+                        <input type="password" id="new_password" name="new_password" required minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="confirm_password">Confirm New Password</label>
+                        <input type="password" id="confirm_password" name="confirm_password" required>
+                    </div>
+                    <button type="submit" class="sv-btn sv-btn-primary">Change Password</button>
                 </div>
-                <div class="form-group">
-                    <label for="new_password">New Password</label>
-                    <input type="password" id="new_password" name="new_password" required minlength="6">
-                </div>
-                <div class="form-group">
-                    <label for="confirm_password">Confirm New Password</label>
-                    <input type="password" id="confirm_password" name="confirm_password" required>
-                </div>
-                <button type="submit" class="btn">Change Password</button>
-            </div>
-        </form>
+            </form>
 
-        <div class="form-section">
-            <h3>Account Info</h3>
-            <div class="info-item">
-                <span class="info-label">Username</span>
-                <span class="info-value">{{ user.username }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Email</span>
-                <span class="info-value">{{ user.email }}</span>
-            </div>
-            <div class="info-item">
-                <span class="info-label">Role</span>
-                <span class="info-value">{{ user.role }}</span>
+            <div class="form-section">
+                <div class="sv-section-label">Account Info</div>
+                <div class="info-grid">
+                    <div class="info-row">
+                        <span class="info-label">Username</span>
+                        <span class="info-value">{{ user.username }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">{{ user.email }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Role</span>
+                        <span class="info-value">{{ user.role }}</span>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

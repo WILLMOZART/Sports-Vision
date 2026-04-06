@@ -163,7 +163,7 @@ def api_info():
     """Get API information"""
     return jsonify(
         {
-            "name": "SportVision Analytics API",
+            "name": "Sports-Vision Analytics API",
             "version": "1.0.0",
             "endpoints": [
                 "/api/players",

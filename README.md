@@ -1,8 +1,8 @@
-# SportVision Analytics
+# Sports-Vision Analytics
 
 A comprehensive sports analytics web application built with Python Flask, featuring player statistics, team analytics, CSV data upload, machine learning match predictions, and an admin panel.
 
-![SportVision Analytics](https://img.shields.io/badge/Python-3.8+-blue.svg)
+![Sports-Vision Analytics](https://img.shields.io/badge/Python-3.8+-blue.svg)
 ![Flask](https://img.shields.io/badge/Flask-3.0-green.svg)
 ![License](https://img.shields.io/badge/License-MIT-yellow.svg)
 

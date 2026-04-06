@@ -1,4 +1,4 @@
-# SportVision Analytics Documentation
+# Sports-Vision Analytics Documentation
 
 ---
 
@@ -16,7 +16,7 @@
 
 ## Introduction
 
-SportVision Analytics is a comprehensive sports analytics platform that provides:
+Sports-Vision Analytics is a comprehensive sports analytics platform that provides:
 - Player statistics and performance tracking
 - Team analytics and performance metrics
 - CSV data upload for bulk imports
